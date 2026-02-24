@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegalScraper MVP | OPPORTIUM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --grafite:#2C2C2C;--off-white:#F5F5F5;--surface:#FAFAFA;
+  --azul-petroleo:#006064;--azul-petroleo-light:#00838F;--azul-petroleo-hover:#00ACC1;
+  --laranja:#E85D1A;--laranja-light:#FF6F33;
+  --border:#E0E0E0;--border-light:#EEEEEE;--text-muted:#757575;
+  --success:#2E7D32;--success-bg:#E8F5E9;--warning:#EF6C00;--warning-bg:#FFF3E0;
+  --error:#C62828;--error-bg:#FFEBEE;--info-bg:#E0F2F1;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono','SF Mono','Consolas',monospace;
+}
+body{font-family:var(--font-sans);background:var(--off-white);color:var(--grafite);line-height:1.5}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* LOGIN - Otimizado para notebook sem scroll */
+.login-wrapper{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--grafite);
+  position:relative;
+  overflow:hidden;
+}
+.login-bg{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 20% 50%,rgba(0,96,100,0.12) 0%,transparent 50%),
+              radial-gradient(circle at 80% 20%,rgba(232,93,26,0.06) 0%,transparent 40%);
+  pointer-events:none;
+}
+.login-container{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:100%;
+  max-width:360px;
+  padding:0 20px;
+  animation:fadeUp .4s ease-out;
+}
+.login-brand{text-align:center;margin-bottom:20px}
+.login-brand-name{
+  font-size:11px;
+  font-weight:100;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.45);
+  margin-bottom:4px;
+}
+.login-product{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.login-product span{color:rgba(255,255,255,0.50)}
+.login-card{
+  width:100%;
+  background:#fff;
+  border-radius:10px;
+  padding:24px 22px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.25);
+}
+.login-title{font-size:15px;font-weight:700;color:var(--grafite);margin-bottom:2px}
+.login-subtitle{font-size:11px;color:var(--text-muted);margin-bottom:16px}
+.field-group{margin-bottom:12px}
+.field-group label{display:block;font-size:10px;font-weight:600;color:var(--grafite);margin-bottom:4px;letter-spacing:.02em}
+.field-group input{
+  width:100%;
+  padding:9px 11px;
+  border:1.5px solid var(--border);
+  border-radius:5px;
+  font-size:13px;
+  font-family:inherit;
+  color:var(--grafite);
+  outline:none;
+  transition:border-color .15s;
+  background:#fff;
+}
+.field-group input:focus{border-color:var(--azul-petroleo)}
+.password-wrap{position:relative}
+.password-toggle{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;font-family:inherit;font-weight:500;
+}
+.captcha-box{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 11px;border:1.5px solid var(--border);border-radius:5px;
+  margin-bottom:14px;cursor:pointer;transition:border-color .15s;background:var(--off-white);
+}
+.captcha-box.checked{border-color:var(--success);background:var(--success-bg)}
+.captcha-checkbox{
+  width:16px;height:16px;border-radius:3px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;background:#fff;transition:all .15s;flex-shrink:0;
+}
+.captcha-box.checked .captcha-checkbox{border-color:var(--success);background:var(--success)}
+.captcha-label{font-size:11px;color:var(--grafite);flex:1}
+.captcha-brand{font-size:8px;color:var(--text-muted);font-weight:600;letter-spacing:.04em}
+.login-btn{
+  width:100%;padding:10px;background:var(--azul-petroleo);color:#fff;border:none;border-radius:5px;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.login-btn:hover{background:var(--azul-petroleo-light)}
+.login-btn:disabled{opacity:.85;cursor:default}
+.login-btn .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.login-error{background:var(--error-bg);color:var(--error);font-size:11px;font-weight:500;padding:7px 10px;border-radius:5px;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+.login-demo{margin-top:12px;padding:10px;background:var(--info-bg);border-radius:5px;font-size:10px;color:var(--azul-petroleo)}
+.login-demo strong{display:block;margin-bottom:2px}
+.login-footer{margin-top:16px;text-align:center;font-size:9px;color:rgba(255,255,255,0.2)}
+
+/* Watermark */
+.watermark{position:fixed;bottom:10px;right:14px;font-size:8px;color:rgba(255,255,255,0.12);letter-spacing:.04em;z-index:10;pointer-events:none}
+.watermark-app{color:rgba(0,0,0,0.06)}
+
+/* APP */
+.app{display:none;min-height:100vh;background:var(--off-white);position:relative}
+.app.active{display:flex}
+.sidebar{
+  width:200px;min-width:200px;background:var(--grafite);color:#fff;
+  display:flex;flex-direction:column;padding:18px 0;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.logo{padding:0 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.logo-text{font-size:9px;font-weight:100;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:2px}
+.logo-product{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.logo-product span{color:rgba(255,255,255,0.50)}
+nav{flex:1;padding:14px 8px;display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:5px;cursor:pointer;
+  font-size:12px;font-weight:400;color:rgba(255,255,255,0.55);background:transparent;
+  transition:all .15s;border:none;width:100%;text-align:left;font-family:inherit;
+}
+.nav-item:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.04)}
+.nav-item.active{font-weight:600;color:#fff;background:rgba(255,255,255,0.08)}
+.nav-badge{margin-left:auto;background:var(--laranja);color:#fff;font-size:9px;font-weight:700;border-radius:6px;padding:1px 5px;min-width:14px;text-align:center}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08)}
+.sidebar-user{display:flex;align-items:center;gap:8px}
+.sidebar-avatar{width:26px;height:26px;border-radius:50%;background:var(--azul-petroleo);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.sidebar-user-info{flex:1;min-width:0}
+.sidebar-user-name{font-size:11px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-user-email{font-size:9px;color:rgba(255,255,255,0.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-logout{background:none;border:none;color:rgba(255,255,255,0.35);cursor:pointer;padding:3px;border-radius:3px;display:flex}
+.sidebar-logout:hover{color:rgba(255,255,255,0.7)}
+
+/* Main */
+.main{flex:1;padding:20px 28px;max-width:1050px;position:relative}
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+.page-header{margin-bottom:16px}
+.page-title{font-size:18px;font-weight:700;color:var(--grafite);letter-spacing:-.02em;margin-bottom:2px}
+.page-subtitle{font-size:12px;color:var(--text-muted)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:6px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.stat-card.accent-teal{border-top:2px solid var(--azul-petroleo)}
+.stat-card.accent-orange{border-top:2px solid var(--laranja)}
+.stat-card.accent-green{border-top:2px solid var(--success)}
+.stat-card.accent-gray{border-top:2px solid var(--text-muted)}
+.stat-label{font-size:9px;color:var(--text-muted);font-weight:500;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.stat-value{font-size:20px;font-weight:700;color:var(--grafite);letter-spacing:-.02em;font-family:var(--font-mono)}
+.stat-meta{font-size:9px;color:var(--text-muted);margin-top:3px}
+
+/* Cards */
+.card{background:#fff;border-radius:6px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:12px}
+.card-title{font-size:12px;font-weight:700;color:var(--grafite);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Buttons */
+.btn-primary{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:var(--azul-petroleo);color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-primary:hover{background:var(--azul-petroleo-light)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:transparent;color:var(--azul-petroleo);border:1.5px solid var(--azul-petroleo);border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-secondary:hover{background:var(--info-bg)}
+
+/* Processo Card */
+.processo-card{background:#fff;border-radius:6px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:8px;border:1px solid var(--border-light);transition:border-color .15s,box-shadow .15s;cursor:pointer}
+.processo-card:hover{border-color:var(--azul-petroleo);box-shadow:0 2px 8px rgba(0,96,100,0.08)}
+.processo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:5px}
+.processo-header-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.processo-cnj{font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--azul-petroleo);letter-spacing:-.01em}
+.tribunal-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;color:#fff;padding:2px 6px;border-radius:3px;letter-spacing:.04em}
+.tribunal-badge.tjsp{background:var(--azul-petroleo)}
+.tribunal-badge.tjgo{background:var(--laranja)}
+.tribunal-badge.tjxx{background:var(--text-muted)}
+.status-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px}
+.status-badge.ativo{color:var(--success);background:var(--success-bg)}
+.status-badge.suspenso{color:var(--warning);background:var(--warning-bg)}
+.status-badge.arquivado{color:var(--text-muted);background:var(--off-white)}
+.status-badge.andamento{color:var(--azul-petroleo);background:var(--info-bg)}
+.processo-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:11px}
+.processo-label{color:var(--text-muted);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.processo-value{color:var(--grafite);font-weight:500;margin-bottom:5px}
+.processo-value.valor{color:var(--success);font-weight:700}
+.processo-mov{display:flex;align-items:center;gap:5px;margin-top:8px;padding:6px 10px;background:var(--off-white);border-radius:4px;font-size:11px;color:var(--grafite)}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.dot.teal{background:var(--azul-petroleo)}
+
+/* Search */
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);cursor:pointer;outline:none;min-width:140px}
+.search-bar select:focus{border-color:var(--azul-petroleo)}
+.search-bar input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:5px;font-size:12px;font-family:inherit;color:var(--grafite);outline:none;transition:border-color .15s}
+.search-bar input:focus{border-color:var(--azul-petroleo)}
+.search-bar input.mono{font-family:var(--font-mono);font-size:11px;letter-spacing:.02em}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.filter-row .field-group{margin:0;flex:1;min-width:100px}
+.filter-row .field-group label{font-size:9px}
+.filter-row .field-group input,.filter-row .field-group select{padding:7px 10px;font-size:11px}
+
+/* Loading & Empty */
+.loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;color:var(--text-muted)}
+.loading-spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--azul-petroleo);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
+.loading-text{font-size:12px}
+.empty-state{text-align:center;padding:30px 20px;color:var(--text-muted)}
+.empty-icon{font-size:30px;margin-bottom:10px;opacity:.3}
+.empty-title{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--grafite)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px)}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:10px;padding:20px;width:90%;max-width:560px;max-height:75vh;overflow:auto;box-shadow:0 16px 48px rgba(0,0,0,0.15);animation:fadeUp .2s ease}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px}
+.modal-close:hover{color:var(--grafite)}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:14px}
+.modal hr{border:none;border-top:1px solid var(--border-light);margin:12px 0}
+.modal-actions{display:flex;gap:8px;margin-top:14px}
+.modal-tabs{display:flex;gap:5px;margin-bottom:12px;border-bottom:1px solid var(--border-light);padding-bottom:8px}
+.modal-tab{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-muted);font-family:inherit}
+.modal-tab.active{background:var(--info-bg);color:var(--azul-petroleo)}
+.modal-tab:hover:not(.active){background:var(--off-white)}
+.parte-card{background:var(--off-white);border-radius:5px;padding:12px;margin-bottom:8px}
+.parte-tipo{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.parte-tipo.autor{color:var(--azul-petroleo)}
+.parte-tipo.reu{color:var(--laranja)}
+.parte-nome{font-size:12px;font-weight:600;color:var(--grafite);margin-bottom:2px}
+.parte-doc{font-size:10px;color:var(--text-muted)}
+.parte-adv{font-size:10px;color:var(--grafite);margin-top:5px;padding-top:5px;border-top:1px solid var(--border-light)}
+
+/* Toast */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--success);color:#fff;padding:10px 16px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:200;font-size:12px;font-weight:500;display:none;align-items:center;gap:6px;animation:fadeUp .25s ease}
+.toast.active{display:flex}
+.toast.error{background:var(--error)}
+
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.modal-grid{grid-template-columns:1fr}.main{padding:16px 20px}}
+@media(max-width:700px){.sidebar{display:none}.search-bar{flex-direction:column}.search-bar select{min-width:auto}.filter-row{flex-direction:column}.filter-row .field-group{min-width:auto}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-wrapper">
+  <div class="login-bg"></div>
+  <div class="login-container">
+    <div class="login-brand">
+      <div class="login-brand-name">Opportium</div>
+      <div class="login-product">Legal<span>Scraper</span></div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Entrar</div>
+      <div class="login-subtitle">Acesse com suas credenciais</div>
+      <div id="loginError" class="login-error" style="display:none"><span>⚠</span> <span id="loginErrorText"></span></div>
+      <div class="field-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
+      <div class="field-group"><label>Senha</label><div class="password-wrap"><input type="password" id="loginPassword" placeholder="••••••••"><button class="password-toggle" onclick="togglePassword()">Mostrar</button></div></div>
+      <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()">
+        <div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span>
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
+      <div class="login-demo"><strong>Demo:</strong> demo@opportium.com.br / Demo@2026</div>
+    </div>
+    <div class="login-footer">MVP v1.0 · API v1.6.1</div>
+  </div>
+  <div class="watermark">© 2026 Opportium. Todos os direitos reservados. Sistema proprietário.</div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app">
+  <aside class="sidebar">
+    <div class="logo"><div class="logo-text">Opportium</div><div class="logo-product">Legal<span>Scraper</span></div></div>
+    <nav>
+      <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Painel</button>
+      <button class="nav-item" data-page="consulta" onclick="showPage('consulta',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Consultar</button>
+      <button class="nav-item" data-page="watchlist" onclick="showPage('watchlist',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> Acompanhar <span class="nav-badge" id="watchBadge">0</span></button>
+      <button class="nav-item" data-page="consultas" onclick="showPage('consultas',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Consultas</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">D</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name" id="sidebarName">Demo User</div><div class="sidebar-user-email" id="sidebarEmail">demo@opportium.com.br</div></div>
+        <button class="sidebar-logout" onclick="handleLogout()" title="Sair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header"><div class="page-title">Painel</div><div class="page-subtitle" id="dashTimestamp"></div></div>
+      <div class="stats-grid">
+        <div class="stat-card accent-teal"><div class="stat-label">Processos</div><div class="stat-value" id="statTotal">-</div><div class="stat-meta">API v1.6.1</div></div>
+        <div class="stat-card accent-orange"><div class="stat-label">Acompanhando</div><div class="stat-value" id="statWatched">0</div><div class="stat-meta">Watchlist</div></div>
+        <div class="stat-card accent-green"><div class="stat-label">Consultas</div><div class="stat-value" id="statConsultas">0</div><div class="stat-meta">Salvas</div></div>
+        <div class="stat-card accent-gray"><div class="stat-label">Última Busca</div><div class="stat-value" id="statLastSearch">-</div><div class="stat-meta">Resultados</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Ações Rápidas</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-primary" onclick="showPage('consulta',document.querySelector('[data-page=consulta]'))"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Nova Consulta</button>
+            <button class="btn-secondary" onclick="showPage('watchlist',document.querySelector('[data-page=watchlist]'))"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> Watchlist</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Status API</div>
+          <div id="apiStatus" style="display:flex;align-items:center;gap:8px;">
+            <div class="loading-spinner" style="width:16px;height:16px;border-width:2px;margin:0"></div>
+            <span style="font-size:11px;color:var(--text-muted)">Verificando...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSULTA -->
+    <div id="page-consulta" class="page">
+      <div class="page-header"><div class="page-title">Consultar Processos</div><div class="page-subtitle">Busque na base de dados</div></div>
+      <div class="card">
+        <div class="search-bar">
+          <select id="searchTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select>
+          <input id="searchInput" type="text" placeholder="Buscar por CNJ, classe, assunto..." class="mono">
+          <button class="btn-primary" id="searchBtn" onclick="doSearch()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Buscar</button>
+        </div>
+        <div class="filter-row">
+          <div class="field-group"><label>Valor Mín (R$)</label><input type="number" id="valorMin" placeholder="0"></div>
+          <div class="field-group"><label>Valor Máx (R$)</label><input type="number" id="valorMax" placeholder="999999"></div>
+          <div class="field-group"><label>Limite</label><select id="searchLimit"><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div>
+        </div>
+      </div>
+      <div id="searchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Buscando...</div></div>
+      <div id="searchEmpty" class="empty-state"><div class="empty-icon">⚖️</div><div class="empty-title">Faça uma consulta</div><div style="font-size:11px">Use os filtros acima</div></div>
+      <div id="searchError" class="empty-state" style="display:none"><div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div id="searchErrorText" style="font-size:11px"></div></div>
+      <div id="searchResultsCount" style="display:none;font-size:11px;color:var(--text-muted);margin-bottom:10px"></div>
+      <div id="searchResults"></div>
+    </div>
+
+    <!-- WATCHLIST -->
+    <div id="page-watchlist" class="page">
+      <div class="page-header"><div class="page-title">Acompanhar</div><div class="page-subtitle" id="watchSubtitle">Watchlist</div></div>
+      <div id="watchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Carregando...</div></div>
+      <div id="watchResults"></div>
+      <div id="watchEmpty" class="empty-state"><div class="empty-icon">👁️</div><div class="empty-title">Watchlist vazia</div><div style="font-size:11px">Adicione processos para monitorar</div></div>
+    </div>
+
+    <!-- CONSULTAS SALVAS -->
+    <div id="page-consultas" class="page">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div class="page-title">Consultas Salvas</div><div class="page-subtitle">Suas consultas</div></div>
+        <button class="btn-primary" onclick="openNovaConsultaModal()">+ Nova</button>
+      </div>
+      <div id="consultasLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Carregando...</div></div>
+      <div id="consultasResults"></div>
+      <div id="consultasEmpty" class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Nenhuma consulta</div><div style="font-size:11px">Crie para salvar filtros</div></div>
+    </div>
+  </main>
+  <div class="watermark watermark-app">© 2026 Opportium. Sistema proprietário.</div>
+</div>
+
+<!-- MODAL PROCESSO -->
+<div id="modalOverlay" class="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span id="modalTribunal" class="tribunal-badge tjsp"></span>
+          <span id="modalStatus" class="status-badge andamento"></span>
+        </div>
+        <div id="modalCNJ" class="processo-cnj" style="font-size:14px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="showModalTab('dados',this)">📋 Dados</button>
+      <button class="modal-tab" onclick="showModalTab('partes',this)">👥 Partes</button>
+    </div>
+    <div id="modalTabDados"><div class="modal-grid" id="modalGrid"></div></div>
+    <div id="modalTabPartes" style="display:none">
+      <div id="modalPartes"></div>
+      <div id="modalPartesLoading" class="loading-container" style="padding:16px"><div class="loading-spinner" style="width:20px;height:20px"></div><div class="loading-text">Carregando...</div></div>
+    </div>
+    <hr>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modalWatchBtn" onclick="addToWatchlist()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> Watchlist</button>
+      <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA CONSULTA -->
+<div id="novaConsultaModal" class="modal-overlay" onclick="closeNovaConsultaModal()">
+  <div class="modal" style="max-width:400px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div><div class="page-title" style="font-size:15px">Nova Consulta</div></div>
+      <button class="modal-close" onclick="closeNovaConsultaModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="field-group"><label>Nome *</label><input type="text" id="novaConsultaNome" placeholder="Ex: Processos TJSP"></div>
+    <div class="field-group"><label>Tribunal</label><select id="novaConsultaTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
+    <div style="display:flex;gap:10px">
+      <div class="field-group" style="flex:1"><label>Valor Mín</label><input type="number" id="novaConsultaValorMin" placeholder="0"></div>
+      <div class="field-group" style="flex:1"><label>Valor Máx</label><input type="number" id="novaConsultaValorMax" placeholder="999999"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="criarConsulta()">Criar</button>
+      <button class="btn-secondary" onclick="closeNovaConsultaModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"><span id="toastIcon">✓</span> <span id="toastMsg"></span></div>
+
+<script>
+// CONFIG
+const API_BASE = 'https://legalscraper-c5a19f03fe5f.herokuapp.com';
+const API_VERSION = '/v1';
+const DEMO_CREDENTIALS = { email: 'demo@opportium.com.br', password: 'Demo@2026' };
+
+let currentUser = null;
+let token = null;
+let currentProcesso = null;
+let watchlistCache = [];
+let consultasCache = [];
+let lastSearchResults = [];
+
+// UTILS
+function formatCurrency(value) {
+  if (!value) return 'R$ 0,00';
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+}
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  try { return new Date(dateStr).toLocaleDateString('pt-BR'); } catch { return dateStr; }
+}
+function getTribunalClass(tribunal) {
+  if (!tribunal) return 'tjxx';
+  const t = tribunal.toUpperCase();
+  if (t.includes('TJSP')) return 'tjsp';
+  if (t.includes('TJGO')) return 'tjgo';
+  return 'tjxx';
+}
+function getStatusClass(status) {
+  if (!status) return 'andamento';
+  const s = status.toLowerCase();
+  if (s.includes('ativo') || s.includes('andamento')) return 'ativo';
+  if (s.includes('suspenso')) return 'suspenso';
+  if (s.includes('arquivado') || s.includes('baixado')) return 'arquivado';
+  return 'andamento';
+}
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = isError ? '⚠' : '✓';
+  toast.className = 'toast active' + (isError ? ' error' : '');
+  setTimeout(() => toast.classList.remove('active'), 2500);
+}
+
+// API
+async function apiCall(endpoint, options = {}) {
+  const url = API_BASE + API_VERSION + endpoint;
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  try {
+    const response = await fetch(url, { ...options, headers });
+    if (response.status === 401) { handleLogout(); throw new Error('Sessão expirada'); }
+    if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.detail || error.message || 'Erro'); }
+    return await response.json();
+  } catch (error) { console.error('API Error:', error); throw error; }
+}
+
+// LOGIN
+let captchaChecked = false;
+function togglePassword() {
+  const input = document.getElementById('loginPassword');
+  const btn = document.querySelector('.password-toggle');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Ocultar'; }
+  else { input.type = 'password'; btn.textContent = 'Mostrar'; }
+}
+function toggleCaptcha() {
+  const box = document.getElementById('captchaBox');
+  captchaChecked = !captchaChecked;
+  box.classList.toggle('checked', captchaChecked);
+  box.querySelector('.captcha-check').style.display = captchaChecked ? 'block' : 'none';
+}
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorDiv = document.getElementById('loginError');
+  const errorText = document.getElementById('loginErrorText');
+  const btn = document.getElementById('loginBtn');
+  if (!email || !password) { errorDiv.style.display = 'flex'; errorText.textContent = 'Preencha todos os campos'; return; }
+  if (!captchaChecked) { errorDiv.style.display = 'flex'; errorText.textContent = 'Confirme o captcha'; return; }
+  if (email !== DEMO_CREDENTIALS.email || password !== DEMO_CREDENTIALS.password) { errorDiv.style.display = 'flex'; errorText.textContent = 'Credenciais incorretas'; return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Entrando...'; errorDiv.style.display = 'none';
+  setTimeout(() => {
+    token = 'mvp_demo_' + Date.now(); localStorage.setItem('legalscraper_token', token);
+    currentUser = { email: DEMO_CREDENTIALS.email, name: 'Demo User' }; localStorage.setItem('legalscraper_user', JSON.stringify(currentUser));
+    document.getElementById('loginPage').style.display = 'none'; document.getElementById('app').classList.add('active');
+    initApp(); btn.disabled = false; btn.innerHTML = 'Entrar';
+  }, 600);
+}
+function handleLogout() {
+  token = null; currentUser = null; localStorage.removeItem('legalscraper_token'); localStorage.removeItem('legalscraper_user');
+  document.getElementById('app').classList.remove('active'); document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginEmail').value = ''; document.getElementById('loginPassword').value = '';
+  captchaChecked = false; document.getElementById('captchaBox').classList.remove('checked'); document.querySelector('.captcha-check').style.display = 'none';
+}
+
+// INIT
+async function initApp() {
+  const now = new Date();
+  document.getElementById('dashTimestamp').textContent = 'Atualizado às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString('pt-BR');
+  checkApiStatus(); loadWatchlist(); loadConsultas();
+}
+async function checkApiStatus() {
+  const statusDiv = document.getElementById('apiStatus');
+  try {
+    await apiCall('/processos?limit=1');
+    statusDiv.innerHTML = '<span style="color:var(--success);font-size:16px">●</span><span style="font-size:11px">Online</span>';
+    document.getElementById('statTotal').textContent = '✓';
+  } catch (error) {
+    statusDiv.innerHTML = '<span style="color:var(--error);font-size:16px">●</span><span style="font-size:11px;color:var(--error)">Offline</span>';
+    document.getElementById('statTotal').textContent = '⚠';
+  }
+}
+
+// NAV
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (id === 'watchlist') loadWatchlist();
+  if (id === 'consultas') loadConsultas();
+}
+
+// SEARCH
+async function doSearch() {
+  const tribunal = document.getElementById('searchTribunal').value;
+  const valorMin = document.getElementById('valorMin').value;
+  const valorMax = document.getElementById('valorMax').value;
+  const limit = document.getElementById('searchLimit').value;
+  document.getElementById('searchLoading').style.display = 'flex';
+  document.getElementById('searchEmpty').style.display = 'none';
+  document.getElementById('searchError').style.display = 'none';
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchResultsCount').style.display = 'none';
+  document.getElementById('searchBtn').disabled = true;
+  try {
+    const params = new URLSearchParams();
+    if (tribunal) params.append('tribunal', tribunal);
+    if (valorMin) params.append('valor_min', valorMin);
+    if (valorMax) params.append('valor_max', valorMax);
+    params.append('limit', limit);
+    const data = await apiCall('/processos?' + params.toString());
+    const processos = Array.isArray(data) ? data : (data.items || data.processos || []);
+    lastSearchResults = processos;
+    document.getElementById('searchLoading').style.display = 'none';
+    if (processos.length === 0) {
+      document.getElementById('searchEmpty').innerHTML = '<div class="empty-icon">🔍</div><div class="empty-title">Nenhum resultado</div><div style="font-size:11px">Ajuste os filtros</div>';
+      document.getElementById('searchEmpty').style.display = 'block';
+    } else {
+      document.getElementById('searchResultsCount').style.display = 'block';
+      document.getElementById('searchResultsCount').textContent = processos.length + ' resultado(s)';
+      document.getElementById('searchResults').innerHTML = processos.map(p => renderProcessoCard(p)).join('');
+      document.getElementById('statLastSearch').textContent = processos.length;
+    }
+  } catch (error) {
+    document.getElementById('searchLoading').style.display = 'none';
+    document.getElementById('searchError').style.display = 'block';
+    document.getElementById('searchErrorText').textContent = error.message || 'Erro na busca';
+  }
+  document.getElementById('searchBtn').disabled = false;
+}
+function renderProcessoCard(p) {
+  const cnj = p.numero_cnj || p.cnj || p.numero || '-';
+  const tribunal = p.tribunal || 'N/A';
+  const classe = p.classe || '-';
+  const assunto = p.assunto || '-';
+  const poloAtivo = p.polo_ativo || '-';
+  const poloPassivo = p.polo_passivo || '-';
+  const comarca = p.comarca || '-';
+  const vara = p.vara || '-';
+  const valor = p.valor_causa || p.valor || 0;
+  const status = p.status || 'Em andamento';
+  const dataDistribuicao = p.data_distribuicao || p.distribuicao || '-';
+  const ultimaMov = p.ultima_movimentacao || '-';
+  return `<div class="processo-card" onclick="openModal('${cnj}')">
+    <div class="processo-header"><div class="processo-header-left">
+      <span class="processo-cnj">${cnj}</span>
+      <span class="tribunal-badge ${getTribunalClass(tribunal)}">${tribunal}</span>
+    </div><div class="processo-header-right">
+      <span class="status-badge ${getStatusClass(status)}">${status}</span>
+    </div></div>
+    <div class="processo-grid">
+      <div><div class="processo-label">Classe</div><div class="processo-value">${classe}</div></div>
+      <div><div class="processo-label">Assunto</div><div class="processo-value">${assunto}</div></div>
+      <div><div class="processo-label">Polo Ativo</div><div class="processo-value">${poloAtivo}</div></div>
+      <div><div class="processo-label">Polo Passivo</div><div class="processo-value">${poloPassivo}</div></div>
+      <div><div class="processo-label">Comarca/Vara</div><div class="processo-value">${comarca} — ${vara}</div></div>
+      <div><div class="processo-label">Valor</div><div class="processo-value valor">${formatCurrency(valor)}</div></div>
+    </div>
+    <div class="processo-mov"><span class="dot teal"></span><span style="color:var(--text-muted);font-size:10px">${formatDate(dataDistribuicao)}</span><span style="flex:1">${ultimaMov}</span></div>
+  </div>`;
+}
+
+// MODAL
+async function openModal(cnj) {
+  try {
+    const processo = await apiCall('/processos/' + encodeURIComponent(cnj));
+    currentProcesso = processo;
+    const tribunal = processo.tribunal || 'N/A';
+    const status = processo.status || 'Em andamento';
+    document.getElementById('modalTribunal').className = 'tribunal-badge ' + getTribunalClass(tribunal);
+    document.getElementById('modalTribunal').textContent = tribunal;
+    document.getElementById('modalStatus').className = 'status-badge ' + getStatusClass(status);
+    document.getElementById('modalStatus').textContent = status;
+    document.getElementById('modalCNJ').textContent = processo.numero_cnj || cnj;
+    const campos = [
+      ['Classe', processo.classe], ['Assunto', processo.assunto], ['Polo Ativo', processo.polo_ativo], ['Polo Passivo', processo.polo_passivo],
+      ['Comarca', processo.comarca], ['Vara', processo.vara], ['UF', processo.uf], ['Instância', processo.instancia],
+      ['Distribuição', formatDate(processo.data_distribuicao)], ['Atualização', formatDate(processo.data_atualizacao)],
+      ['Valor', formatCurrency(processo.valor_causa)], ['Última Mov.', processo.ultima_movimentacao]
+    ];
+    document.getElementById('modalGrid').innerHTML = campos.map(([label, value]) => 
+      `<div><div class="processo-label">${label}</div><div class="processo-value${label === 'Valor' ? ' valor' : ''}">${value || '-'}</div></div>`
+    ).join('');
+    showModalTab('dados', document.querySelector('.modal-tab'));
+    document.getElementById('modalOverlay').classList.add('active');
+  } catch (error) { showToast('Erro: ' + error.message, true); }
+}
+function showModalTab(tab, el) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('modalTabDados').style.display = tab === 'dados' ? 'block' : 'none';
+  document.getElementById('modalTabPartes').style.display = tab === 'partes' ? 'block' : 'none';
+  if (tab === 'partes' && currentProcesso) loadPartes(currentProcesso.numero_cnj);
+}
+async function loadPartes(cnj) {
+  document.getElementById('modalPartes').innerHTML = '';
+  document.getElementById('modalPartesLoading').style.display = 'flex';
+  try {
+    const partes = await apiCall('/processos/' + encodeURIComponent(cnj) + '/partes');
+    const lista = Array.isArray(partes) ? partes : (partes.items || partes.partes || []);
+    document.getElementById('modalPartesLoading').style.display = 'none';
+    if (lista.length === 0) { document.getElementById('modalPartes').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px">Nenhuma parte</div>'; }
+    else {
+      document.getElementById('modalPartes').innerHTML = lista.map(p => `
+        <div class="parte-card">
+          <div class="parte-tipo ${(p.tipo || '').toLowerCase().includes('autor') ? 'autor' : 'reu'}">${p.tipo || 'Parte'}</div>
+          <div class="parte-nome">${p.nome || '-'}</div>
+          <div class="parte-doc">${p.documento || ''}</div>
+          ${p.advogados && p.advogados.length ? `<div class="parte-adv"><strong>Adv:</strong> ${p.advogados.map(a => a.nome + (a.oab ? ' (' + a.oab + ')' : '')).join(', ')}</div>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch (error) { document.getElementById('modalPartesLoading').style.display = 'none'; document.getElementById('modalPartes').innerHTML = '<div style="text-align:center;color:var(--error);padding:16px;font-size:11px">Erro ao carregar</div>'; }
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); currentProcesso = null; }
+
+// WATCHLIST
+async function loadWatchlist() {
+  document.getElementById('watchLoading').style.display = 'flex';
+  document.getElementById('watchResults').innerHTML = '';
+  document.getElementById('watchEmpty').style.display = 'none';
+  try {
+    const data = await apiCall('/watchlist');
+    watchlistCache = Array.isArray(data) ? data : (data.items || data.watchlist || []);
+    document.getElementById('watchLoading').style.display = 'none';
+    document.getElementById('watchBadge').textContent = watchlistCache.length;
+    document.getElementById('statWatched').textContent = watchlistCache.length;
+    document.getElementById('watchSubtitle').textContent = watchlistCache.length + ' processo(s)';
+    if (watchlistCache.length === 0) { document.getElementById('watchEmpty').style.display = 'block'; }
+    else {
+      document.getElementById('watchResults').innerHTML = watchlistCache.map(w => `
+        <div class="processo-card" onclick="openModal('${w.processo_numero || w.cnj}')">
+          <div class="processo-header"><div class="processo-header-left">
+            <span class="processo-cnj">${w.processo_numero || w.cnj || '-'}</span>
+          </div><div class="processo-header-right">
+            <span style="font-size:10px;color:var(--text-muted)">Add: ${formatDate(w.created_at || w.data_adicao)}</span>
+          </div></div>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    document.getElementById('watchLoading').style.display = 'none';
+    document.getElementById('watchEmpty').innerHTML = '<div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div style="font-size:11px">' + error.message + '</div>';
+    document.getElementById('watchEmpty').style.display = 'block';
+  }
+}
+async function addToWatchlist() {
+  if (!currentProcesso) return;
+  const cnj = currentProcesso.numero_cnj;
+  const btn = document.getElementById('modalWatchBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px"></span>';
+  try {
+    await apiCall('/watchlist', { method: 'POST', body: JSON.stringify({ processo_numero: cnj }) });
+    showToast('Adicionado!'); closeModal(); loadWatchlist();
+  } catch (error) { showToast('Erro: ' + error.message, true); }
+  btn.disabled = false; btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> Watchlist';
+}
+
+// CONSULTAS
+async function loadConsultas() {
+  document.getElementById('consultasLoading').style.display = 'flex';
+  document.getElementById('consultasResults').innerHTML = '';
+  document.getElementById('consultasEmpty').style.display = 'none';
+  try {
+    const data = await apiCall('/consultas');
+    consultasCache = Array.isArray(data) ? data : (data.items || data.consultas || []);
+    document.getElementById('consultasLoading').style.display = 'none';
+    document.getElementById('statConsultas').textContent = consultasCache.length;
+    if (consultasCache.length === 0) { document.getElementById('consultasEmpty').style.display = 'block'; }
+    else {
+      document.getElementById('consultasResults').innerHTML = consultasCache.map(c => `
+        <div class="card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600;font-size:12px">${c.nome || 'Sem nome'}</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px">
+                ${c.tribunal ? c.tribunal + ' · ' : ''}${c.valor_min ? 'Min: ' + formatCurrency(c.valor_min) + ' · ' : ''}${c.valor_max ? 'Max: ' + formatCurrency(c.valor_max) : ''}
+              </div>
+              <div style="font-size:9px;color:var(--text-muted);margin-top:2px">Criada: ${formatDate(c.created_at)}</div>
+            </div>
+            <button class="btn-secondary" style="padding:5px 10px;font-size:10px">Executar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    document.getElementById('consultasLoading').style.display = 'none';
+    document.getElementById('consultasEmpty').innerHTML = '<div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div style="font-size:11px">' + error.message + '</div>';
+    document.getElementById('consultasEmpty').style.display = 'block';
+  }
+}
+function openNovaConsultaModal() { document.getElementById('novaConsultaModal').classList.add('active'); }
+function closeNovaConsultaModal() {
+  document.getElementById('novaConsultaModal').classList.remove('active');
+  document.getElementById('novaConsultaNome').value = '';
+  document.getElementById('novaConsultaTribunal').value = '';
+  document.getElementById('novaConsultaValorMin').value = '';
+  document.getElementById('novaConsultaValorMax').value = '';
+}
+async function criarConsulta() {
+  const nome = document.getElementById('novaConsultaNome').value.trim();
+  const tribunal = document.getElementById('novaConsultaTribunal').value;
+  const valorMin = document.getElementById('novaConsultaValorMin').value;
+  const valorMax = document.getElementById('novaConsultaValorMax').value;
+  if (!nome) { showToast('Digite um nome', true); return; }
+  try {
+    await apiCall('/consultas', { method: 'POST', body: JSON.stringify({ nome, tribunal: tribunal || null, valor_min: valorMin ? parseFloat(valorMin) : null, valor_max: valorMax ? parseFloat(valorMax) : null }) });
+    showToast('Consulta criada!'); closeNovaConsultaModal(); loadConsultas();
+  } catch (error) { showToast('Erro: ' + error.message, true); }
+}
+
+// EVENTS
+document.addEventListener('DOMContentLoaded', () => {
+  const savedToken = localStorage.getItem('legalscraper_token');
+  const savedUser = localStorage.getItem('legalscraper_user');
+  if (savedToken && savedUser) {
+    token = savedToken; currentUser = JSON.parse(savedUser);
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    initApp();
+  }
+  ['loginEmail', 'loginPassword'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); }));
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeNovaConsultaModal(); } });
+});
+</script>
+</body>
+</html>
