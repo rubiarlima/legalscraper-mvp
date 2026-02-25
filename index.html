@@ -126,10 +126,10 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .tribunal-badge.tjgo{background:var(--laranja)}
 .tribunal-badge.tjxx{background:var(--text-muted)}
 .status-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:10px}
-.status-badge.ativo{color:var(--success);background:var(--success-bg)}
-.status-badge.suspenso{color:var(--warning);background:var(--warning-bg)}
-.status-badge.arquivado{color:var(--text-muted);background:var(--off-white)}
-.status-badge.andamento{color:var(--azul-petroleo);background:var(--info-bg)}
+.status-badge.normalizado{color:var(--success);background:var(--success-bg)}
+.status-badge.processando{color:var(--warning);background:var(--warning-bg)}
+.status-badge.erro{color:var(--error);background:var(--error-bg)}
+.status-badge.pendente{color:var(--azul-petroleo);background:var(--info-bg)}
 .processo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:12px}
 .processo-label{color:var(--text-muted);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 .processo-value{color:var(--grafite);font-weight:500;margin-bottom:6px}
@@ -151,12 +151,12 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px)}
 .modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:10px;padding:20px;width:90%;max-width:560px;max-height:80vh;overflow:auto;box-shadow:0 16px 48px rgba(0,0,0,0.15);animation:fadeUp .2s ease}
+.modal{background:#fff;border-radius:10px;padding:20px;width:90%;max-width:600px;max-height:85vh;overflow:auto;box-shadow:0 16px 48px rgba(0,0,0,0.15);animation:fadeUp .2s ease}
 .modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
 .modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px}
 .modal-close:hover{color:var(--grafite)}
 .modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
-.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:14px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:14px}
 .modal hr{border:none;border-top:1px solid var(--border-light);margin:12px 0}
 .modal-actions{display:flex;gap:8px;margin-top:14px}
 .modal-tabs{display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid var(--border-light);padding-bottom:8px}
@@ -209,7 +209,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
       </div>
       <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
     </div>
-    <div class="login-footer">v1.6.1</div>
+    <div class="login-footer">v1.7.0</div>
   </div>
   <div class="watermark">© 2026 Opportium. Todos os direitos reservados.</div>
 </div>
@@ -240,7 +240,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Processos Monitorados</div><div class="stat-value" id="statWatched">0</div><div class="stat-meta">Na sua watchlist</div></div>
         <div class="stat-card accent-orange"><div class="stat-label">Última Busca</div><div class="stat-value" id="statLastSearch">-</div><div class="stat-meta">Resultados encontrados</div></div>
-        <div class="stat-card accent-green"><div class="stat-label">Bancos Cobertos</div><div class="stat-value">3</div><div class="stat-meta">Santander, Bradesco, BB</div></div>
+        <div class="stat-card accent-green"><div class="stat-label">Total na Base</div><div class="stat-value" id="statTotal">-</div><div class="stat-meta">Processos disponíveis</div></div>
       </div>
       <div class="card">
         <div class="card-title">Ações Rápidas</div>
@@ -257,7 +257,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
       <div class="page-header"><div class="page-title">Consultar Processos</div><div class="page-subtitle">Busque processos por tribunal ou palavra-chave</div></div>
       <div class="card">
         <div class="search-bar">
-          <input type="text" id="searchInput" placeholder="Buscar por número CNJ, parte, assunto...">
+          <input type="text" id="searchInput" placeholder="Buscar por número, parte, assunto...">
           <button class="btn btn-primary" id="searchBtn" onclick="doSearch()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Buscar</button>
         </div>
         <div class="filter-row">
@@ -268,7 +268,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
         </div>
       </div>
       <div id="searchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Buscando processos...</div></div>
-      <div id="searchEmpty" class="empty-state"><div class="empty-icon">⚖️</div><div class="empty-title">Faça uma consulta</div><div style="font-size:11px;margin-top:4px">Digite um termo ou selecione um tribunal e clique em Buscar</div></div>
+      <div id="searchEmpty" class="empty-state"><div class="empty-icon">⚖️</div><div class="empty-title">Faça uma consulta</div><div style="font-size:11px;margin-top:4px">Clique em Buscar para listar os processos</div></div>
       <div id="searchError" class="empty-state" style="display:none"><div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div id="searchErrorText" style="font-size:11px;margin-top:4px"></div></div>
       <div id="searchResultsHeader" class="results-header" style="display:none">
         <div class="results-count" id="searchResultsCount"></div>
@@ -312,7 +312,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
           <span id="modalTribunal" class="tribunal-badge"></span>
-          <span id="modalStatus" class="status-badge andamento"></span>
+          <span id="modalStatus" class="status-badge normalizado"></span>
         </div>
         <div id="modalCNJ" class="processo-cnj"></div>
       </div>
@@ -323,10 +323,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
       <button class="modal-tab" onclick="showModalTab('partes',this)">👥 Partes</button>
     </div>
     <div id="modalTabDados"><div class="modal-grid" id="modalGrid"></div></div>
-    <div id="modalTabPartes" style="display:none">
-      <div id="modalPartes"></div>
-      <div id="modalPartesLoading" class="loading-container" style="padding:16px"><div class="loading-spinner" style="width:20px;height:20px"></div><div class="loading-text">Carregando...</div></div>
-    </div>
+    <div id="modalTabPartes" style="display:none"><div id="modalPartes"></div></div>
     <hr>
     <div class="modal-actions">
       <button class="btn btn-primary" id="modalWatchBtn" onclick="addToWatchlist()"><svg viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> + Watchlist</button>
@@ -339,54 +336,467 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="toast" class="toast"><span id="toastIcon">✓</span> <span id="toastMsg"></span></div>
 
 <script>
+/*
+ * MAPEAMENTO API v1.7.0
+ * =====================
+ * processo_id: number
+ * processo_numero: string (número CNJ sem formatação)
+ * tribunal: string (TJSP, TJGO, etc)
+ * instancia: string|null
+ * data_distribuicao: string|null
+ * distribuicao_data: string (formato DD/MM/YYYY)
+ * created_at: string (ISO date)
+ * sistema_origem: string (esaj, projudi, etc)
+ * url_publica: string|null
+ * assunto: string
+ * classe: string
+ * foro: string
+ * vara: string
+ * juiz: string|null
+ * valor_causa: number
+ * ultima_movimentacao_data: string (DD/MM/YYYY)
+ * ultima_movimentacao_texto: string
+ * partes: array [{nome, papel, representantes: [{nome, tipo, uf_oab, tipo_oab, numero_oab}]}]
+ * status_processamento: string (NORMALIZADO, PROCESSANDO, ERRO, PENDENTE)
+ * ultima_atualizacao: string (ISO date)
+ * area: string|null
+ */
+
 const API_BASE='https://legalscraper-c5a19f03fe5f.herokuapp.com',API_VERSION='/v1';
-let token=null,currentUser=null,currentProcesso=null,watchlistCache=[],lastSearchResults=[],exportType='busca',selectedTribunal='';
+let token=null,currentUser=null,currentProcesso=null,watchlistCache=[],lastSearchResults=[],exportType='busca',selectedTribunal='',totalProcessos=0;
+
+// Formata número de processo para padrão CNJ (NNNNNNN-DD.AAAA.J.TR.OOOO)
+function formatCNJ(num){
+  if(!num||num.length<20)return num||'-';
+  const n=num.replace(/\D/g,'');
+  if(n.length===20){
+    return `${n.slice(0,7)}-${n.slice(7,9)}.${n.slice(9,13)}.${n.slice(13,14)}.${n.slice(14,16)}.${n.slice(16,20)}`;
+  }
+  return num;
+}
 
 function formatCurrency(v){if(!v)return'R$ 0,00';return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v)}
-function formatDate(d){if(!d)return'-';try{return new Date(d).toLocaleDateString('pt-BR')}catch{return d}}
-function getTribunalClass(t){if(!t)return'tjxx';const x=String(t).toUpperCase();if(x.includes('TJSP')||x.includes('8.26'))return'tjsp';if(x.includes('TJGO')||x.includes('8.09'))return'tjgo';return'tjxx'}
-function getStatusClass(s){if(!s)return'andamento';const x=s.toLowerCase();if(x.includes('ativo'))return'ativo';if(x.includes('suspenso'))return'suspenso';if(x.includes('arquivado')||x.includes('baixado'))return'arquivado';return'andamento'}
-function showToast(msg,isError=false){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;document.getElementById('toastIcon').textContent=isError?'⚠':'✓';t.className='toast active'+(isError?' error':'');setTimeout(()=>t.classList.remove('active'),3000)}
 
-async function apiCall(endpoint,options={}){const url=API_BASE+API_VERSION+endpoint,headers={'Content-Type':'application/json',...options.headers};if(token)headers['Authorization']='Bearer '+token;const res=await fetch(url,{...options,headers});if(res.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.detail||err.message||'Erro')}return await res.json()}
+function formatDate(d){
+  if(!d)return'-';
+  // Se já está no formato DD/MM/YYYY
+  if(typeof d==='string'&&d.includes('/'))return d;
+  // Se é ISO date
+  try{return new Date(d).toLocaleDateString('pt-BR')}catch{return d}
+}
+
+function getTribunalClass(t){
+  if(!t)return'';
+  const x=t.toUpperCase();
+  if(x.includes('TJSP'))return'tjsp';
+  if(x.includes('TJGO'))return'tjgo';
+  return'tjxx';
+}
+
+function getStatusClass(s){
+  if(!s)return'normalizado';
+  const x=s.toUpperCase();
+  if(x.includes('NORMALIZADO'))return'normalizado';
+  if(x.includes('PROCESSANDO'))return'processando';
+  if(x.includes('ERRO'))return'erro';
+  return'pendente';
+}
+
+function getStatusLabel(s){
+  if(!s)return'Normalizado';
+  const x=s.toUpperCase();
+  if(x.includes('NORMALIZADO'))return'Normalizado';
+  if(x.includes('PROCESSANDO'))return'Processando';
+  if(x.includes('ERRO'))return'Erro';
+  return'Pendente';
+}
+
+function showToast(msg,isError=false){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').textContent=isError?'⚠':'✓';
+  t.className='toast active'+(isError?' error':'');
+  setTimeout(()=>t.classList.remove('active'),3000);
+}
+
+async function apiCall(endpoint,options={}){
+  const url=API_BASE+API_VERSION+endpoint;
+  const headers={'Content-Type':'application/json',...options.headers};
+  if(token)headers['Authorization']='Bearer '+token;
+  const res=await fetch(url,{...options,headers});
+  if(res.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}
+  if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.detail||err.message||'Erro')}
+  return await res.json();
+}
 
 let captchaChecked=false;
-function togglePassword(){const i=document.getElementById('loginPassword'),b=document.querySelector('.password-toggle');if(i.type==='password'){i.type='text';b.textContent='Ocultar'}else{i.type='password';b.textContent='Mostrar'}}
-function toggleCaptcha(){captchaChecked=!captchaChecked;const box=document.getElementById('captchaBox');box.classList.toggle('checked',captchaChecked);box.querySelector('.captcha-check').style.display=captchaChecked?'block':'none'}
+function togglePassword(){
+  const i=document.getElementById('loginPassword'),b=document.querySelector('.password-toggle');
+  if(i.type==='password'){i.type='text';b.textContent='Ocultar'}else{i.type='password';b.textContent='Mostrar'}
+}
+function toggleCaptcha(){
+  captchaChecked=!captchaChecked;
+  const box=document.getElementById('captchaBox');
+  box.classList.toggle('checked',captchaChecked);
+  box.querySelector('.captcha-check').style.display=captchaChecked?'block':'none';
+}
 
-async function handleLogin(){const username=document.getElementById('loginUsername').value.trim(),password=document.getElementById('loginPassword').value,errorDiv=document.getElementById('loginError'),errorText=document.getElementById('loginErrorText'),btn=document.getElementById('loginBtn');if(!username||!password){errorDiv.style.display='flex';errorText.textContent='Preencha todos os campos';return}if(!captchaChecked){errorDiv.style.display='flex';errorText.textContent='Confirme o captcha';return}btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Entrando...';errorDiv.style.display='none';try{const res=await fetch(API_BASE+API_VERSION+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});if(!res.ok)throw new Error('Credenciais inválidas');const data=await res.json();token=data.access_token;currentUser={username,role:data.role||'Operador'};localStorage.setItem('ls_token',token);localStorage.setItem('ls_user',JSON.stringify(currentUser));document.getElementById('sidebarName').textContent=username;document.getElementById('sidebarRole').textContent=currentUser.role;document.getElementById('sidebarAvatar').textContent=username.charAt(0).toUpperCase();document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('active');initApp()}catch(e){errorDiv.style.display='flex';errorText.textContent=e.message}btn.disabled=false;btn.innerHTML='Entrar'}
+async function handleLogin(){
+  const username=document.getElementById('loginUsername').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const errorDiv=document.getElementById('loginError');
+  const errorText=document.getElementById('loginErrorText');
+  const btn=document.getElementById('loginBtn');
+  if(!username||!password){errorDiv.style.display='flex';errorText.textContent='Preencha todos os campos';return}
+  if(!captchaChecked){errorDiv.style.display='flex';errorText.textContent='Confirme o captcha';return}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Entrando...';errorDiv.style.display='none';
+  try{
+    const res=await fetch(API_BASE+API_VERSION+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    if(!res.ok)throw new Error('Credenciais inválidas');
+    const data=await res.json();
+    token=data.access_token;
+    currentUser={username,role:data.role||'Operador'};
+    localStorage.setItem('ls_token',token);
+    localStorage.setItem('ls_user',JSON.stringify(currentUser));
+    document.getElementById('sidebarName').textContent=username;
+    document.getElementById('sidebarRole').textContent=currentUser.role;
+    document.getElementById('sidebarAvatar').textContent=username.charAt(0).toUpperCase();
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('app').classList.add('active');
+    initApp();
+  }catch(e){errorDiv.style.display='flex';errorText.textContent=e.message}
+  btn.disabled=false;btn.innerHTML='Entrar';
+}
 
-function handleLogout(){token=null;currentUser=null;localStorage.removeItem('ls_token');localStorage.removeItem('ls_user');document.getElementById('app').classList.remove('active');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUsername').value='';document.getElementById('loginPassword').value='';captchaChecked=false;document.getElementById('captchaBox').classList.remove('checked');document.querySelector('.captcha-check').style.display='none'}
+function handleLogout(){
+  token=null;currentUser=null;
+  localStorage.removeItem('ls_token');localStorage.removeItem('ls_user');
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('loginUsername').value='';
+  document.getElementById('loginPassword').value='';
+  captchaChecked=false;
+  document.getElementById('captchaBox').classList.remove('checked');
+  document.querySelector('.captcha-check').style.display='none';
+}
 
-function initApp(){loadWatchlist()}
+async function initApp(){
+  loadWatchlist();
+  // Carrega total de processos
+  try{
+    const data=await apiCall('/processos?limit=1');
+    if(data.total_count){
+      totalProcessos=data.total_count;
+      document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR');
+    }
+  }catch(e){}
+}
 
-function showPage(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(el)el.classList.add('active');if(id==='watchlist')loadWatchlist();if(id==='exportar')updateExportDesc()}
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  if(id==='watchlist')loadWatchlist();
+  if(id==='exportar')updateExportDesc();
+}
 
-function selectTribunal(el,tribunal){document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));el.classList.add('active');selectedTribunal=tribunal}
+function selectTribunal(el,tribunal){
+  document.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  selectedTribunal=tribunal;
+}
 
-async function doSearch(){const limit=document.getElementById('searchLimit').value;document.getElementById('searchLoading').style.display='flex';document.getElementById('searchEmpty').style.display='none';document.getElementById('searchError').style.display='none';document.getElementById('searchResults').innerHTML='';document.getElementById('searchResultsHeader').style.display='none';document.getElementById('searchBtn').disabled=true;try{let endpoint='/processos?limit='+limit;if(selectedTribunal)endpoint+='&tribunal='+selectedTribunal;const data=await apiCall(endpoint);const lista=Array.isArray(data)?data:(data.items||data.processos||[]);lastSearchResults=lista;document.getElementById('searchLoading').style.display='none';if(lista.length===0){document.getElementById('searchEmpty').innerHTML='<div class="empty-icon">🔍</div><div class="empty-title">Nenhum resultado encontrado</div>';document.getElementById('searchEmpty').style.display='block'}else{document.getElementById('searchResultsHeader').style.display='flex';document.getElementById('searchResultsCount').textContent=lista.length+' processo(s) encontrado(s)';document.getElementById('searchResults').innerHTML=lista.map(renderCard).join('');document.getElementById('statLastSearch').textContent=lista.length}}catch(e){document.getElementById('searchLoading').style.display='none';document.getElementById('searchError').style.display='block';document.getElementById('searchErrorText').textContent=e.message}document.getElementById('searchBtn').disabled=false}
+async function doSearch(){
+  const limit=document.getElementById('searchLimit').value;
+  document.getElementById('searchLoading').style.display='flex';
+  document.getElementById('searchEmpty').style.display='none';
+  document.getElementById('searchError').style.display='none';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchResultsHeader').style.display='none';
+  document.getElementById('searchBtn').disabled=true;
+  
+  try{
+    let endpoint='/processos?limit='+limit;
+    if(selectedTribunal)endpoint+='&tribunal='+selectedTribunal;
+    
+    const response=await apiCall(endpoint);
+    const lista=response.data||response.items||response.processos||(Array.isArray(response)?response:[]);
+    lastSearchResults=lista;
+    
+    if(response.total_count){
+      totalProcessos=response.total_count;
+      document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR');
+    }
+    
+    document.getElementById('searchLoading').style.display='none';
+    
+    if(lista.length===0){
+      document.getElementById('searchEmpty').innerHTML='<div class="empty-icon">🔍</div><div class="empty-title">Nenhum resultado encontrado</div>';
+      document.getElementById('searchEmpty').style.display='block';
+    }else{
+      document.getElementById('searchResultsHeader').style.display='flex';
+      const totalText=response.total_count?` de ${response.total_count.toLocaleString('pt-BR')}`:'';
+      document.getElementById('searchResultsCount').textContent=`${lista.length} processo(s)${totalText}`;
+      document.getElementById('searchResults').innerHTML=lista.map(renderCard).join('');
+      document.getElementById('statLastSearch').textContent=lista.length;
+    }
+  }catch(e){
+    document.getElementById('searchLoading').style.display='none';
+    document.getElementById('searchError').style.display='block';
+    document.getElementById('searchErrorText').textContent=e.message;
+  }
+  document.getElementById('searchBtn').disabled=false;
+}
 
-function renderCard(p){const cnj=p.numero_cnj||p.cnj||p.processo_numero||'-',tribunal=p.tribunal||'-',classe=p.classe||'-',assunto=p.assunto||'-',autor=p.polo_ativo||p.autor||'-',reu=p.polo_passivo||p.reu||'-',comarca=p.comarca||'-',vara=p.vara||'-',valor=p.valor_causa||p.valor||0,status=p.status||'Em andamento',dist=p.data_distribuicao||'-',mov=p.ultima_movimentacao||'-';const tClass=getTribunalClass(cnj);return`<div class="processo-card" onclick="openModal('${cnj}')"><div class="processo-header"><div class="processo-header-left"><span class="processo-cnj">${cnj}</span><span class="tribunal-badge ${tClass}">${tribunal}</span></div><span class="status-badge ${getStatusClass(status)}">${status}</span></div><div class="processo-grid"><div><div class="processo-label">Classe</div><div class="processo-value">${classe}</div></div><div><div class="processo-label">Assunto</div><div class="processo-value">${assunto}</div></div><div><div class="processo-label">Autor</div><div class="processo-value">${autor}</div></div><div><div class="processo-label">Réu</div><div class="processo-value">${reu}</div></div><div><div class="processo-label">Comarca/Vara</div><div class="processo-value">${comarca} — ${vara}</div></div><div><div class="processo-label">Valor</div><div class="processo-value valor">${formatCurrency(valor)}</div></div></div><div class="processo-mov"><span class="dot"></span><span style="color:var(--text-muted)">${formatDate(dist)}</span> ${mov}</div></div>`}
+function renderCard(p){
+  // Campos da API v1.7.0
+  const procNum=p.processo_numero||'';
+  const cnj=formatCNJ(procNum);
+  const tribunal=p.tribunal||'-';
+  const classe=p.classe||'-';
+  const assunto=p.assunto||'-';
+  const foro=p.foro||'-';
+  const vara=p.vara||'-';
+  const valor=p.valor_causa||0;
+  const status=p.status_processamento||'NORMALIZADO';
+  const distData=p.distribuicao_data||p.data_distribuicao||'-';
+  const ultMovData=p.ultima_movimentacao_data||'-';
+  const ultMovTexto=p.ultima_movimentacao_texto||'-';
+  
+  // Extrai autor e réu das partes
+  let autor='-',reu='-';
+  if(p.partes&&p.partes.length>0){
+    const autorParte=p.partes.find(x=>x.papel&&x.papel.toUpperCase().includes('AUTOR'));
+    const reuParte=p.partes.find(x=>x.papel&&(x.papel.toUpperCase().includes('REU')||x.papel.toUpperCase().includes('RÉU')));
+    if(autorParte)autor=autorParte.nome||'-';
+    if(reuParte)reu=reuParte.nome||'-';
+  }
+  
+  const tClass=getTribunalClass(tribunal);
+  const sClass=getStatusClass(status);
+  const sLabel=getStatusLabel(status);
+  
+  return`<div class="processo-card" onclick="openModal('${procNum}')">
+    <div class="processo-header">
+      <div class="processo-header-left">
+        <span class="processo-cnj">${cnj}</span>
+        <span class="tribunal-badge ${tClass}">${tribunal}</span>
+      </div>
+      <span class="status-badge ${sClass}">${sLabel}</span>
+    </div>
+    <div class="processo-grid">
+      <div><div class="processo-label">Classe</div><div class="processo-value">${classe}</div></div>
+      <div><div class="processo-label">Assunto</div><div class="processo-value">${assunto}</div></div>
+      <div><div class="processo-label">Autor</div><div class="processo-value">${autor}</div></div>
+      <div><div class="processo-label">Réu</div><div class="processo-value">${reu}</div></div>
+      <div><div class="processo-label">Foro / Vara</div><div class="processo-value">${foro} — ${vara}</div></div>
+      <div><div class="processo-label">Valor da Causa</div><div class="processo-value valor">${formatCurrency(valor)}</div></div>
+    </div>
+    <div class="processo-mov">
+      <span class="dot"></span>
+      <span style="color:var(--text-muted)">${ultMovData}</span>
+      ${ultMovTexto}
+    </div>
+  </div>`;
+}
 
-async function openModal(cnj){try{const p=await apiCall('/processos/'+encodeURIComponent(cnj));currentProcesso=p;document.getElementById('modalTribunal').className='tribunal-badge '+getTribunalClass(p.numero_cnj||cnj);document.getElementById('modalTribunal').textContent=p.tribunal||'-';document.getElementById('modalStatus').className='status-badge '+getStatusClass(p.status);document.getElementById('modalStatus').textContent=p.status||'-';document.getElementById('modalCNJ').textContent=p.numero_cnj||cnj;const campos=[['Classe',p.classe],['Assunto',p.assunto],['Polo Ativo',p.polo_ativo],['Polo Passivo',p.polo_passivo],['Comarca',p.comarca],['Vara',p.vara],['UF',p.uf],['Instância',p.instancia],['Distribuição',formatDate(p.data_distribuicao)],['Atualização',formatDate(p.data_atualizacao)],['Valor',formatCurrency(p.valor_causa)],['Última Mov.',p.ultima_movimentacao]];document.getElementById('modalGrid').innerHTML=campos.map(([l,v])=>`<div><div class="processo-label">${l}</div><div class="processo-value${l==='Valor'?' valor':''}">${v||'-'}</div></div>`).join('');showModalTab('dados',document.querySelector('.modal-tab'));document.getElementById('modalOverlay').classList.add('active')}catch(e){showToast('Erro: '+e.message,true)}}
+async function openModal(procNum){
+  try{
+    const p=await apiCall('/processos/'+encodeURIComponent(procNum));
+    currentProcesso=p;
+    
+    const cnj=formatCNJ(p.processo_numero);
+    document.getElementById('modalTribunal').className='tribunal-badge '+getTribunalClass(p.tribunal);
+    document.getElementById('modalTribunal').textContent=p.tribunal||'-';
+    document.getElementById('modalStatus').className='status-badge '+getStatusClass(p.status_processamento);
+    document.getElementById('modalStatus').textContent=getStatusLabel(p.status_processamento);
+    document.getElementById('modalCNJ').textContent=cnj;
+    
+    // Campos do modal - todos os campos disponíveis
+    const campos=[
+      ['Classe',p.classe],
+      ['Assunto',p.assunto],
+      ['Foro',p.foro],
+      ['Vara',p.vara],
+      ['Juiz',p.juiz],
+      ['Área',p.area],
+      ['Instância',p.instancia],
+      ['Distribuição',p.distribuicao_data||formatDate(p.data_distribuicao)],
+      ['Valor da Causa',formatCurrency(p.valor_causa)],
+      ['Sistema',p.sistema_origem],
+      ['Última Mov.',p.ultima_movimentacao_data],
+      ['',p.ultima_movimentacao_texto],
+      ['Atualização',formatDate(p.ultima_atualizacao)]
+    ];
+    
+    document.getElementById('modalGrid').innerHTML=campos
+      .filter(([l,v])=>v&&v!=='-'&&v!=='null')
+      .map(([l,v])=>`<div><div class="processo-label">${l}</div><div class="processo-value${l.includes('Valor')?' valor':''}">${v||'-'}</div></div>`)
+      .join('');
+    
+    // Renderiza partes diretamente (já vem no objeto)
+    renderPartes(p.partes||[]);
+    
+    showModalTab('dados',document.querySelector('.modal-tab'));
+    document.getElementById('modalOverlay').classList.add('active');
+  }catch(e){
+    showToast('Erro: '+e.message,true);
+  }
+}
 
-function showModalTab(tab,el){document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('modalTabDados').style.display=tab==='dados'?'block':'none';document.getElementById('modalTabPartes').style.display=tab==='partes'?'block':'none';if(tab==='partes'&&currentProcesso)loadPartes(currentProcesso.numero_cnj)}
+function renderPartes(partes){
+  const container=document.getElementById('modalPartes');
+  if(!partes||partes.length===0){
+    container.innerHTML='<div style="text-align:center;padding:16px;font-size:11px;color:var(--text-muted)">Nenhuma parte encontrada</div>';
+    return;
+  }
+  
+  container.innerHTML=partes.map(p=>{
+    const papel=(p.papel||'PARTE').toUpperCase();
+    const tipoClass=papel.includes('AUTOR')?'autor':'reu';
+    const advs=p.representantes||[];
+    const advsHtml=advs.length>0?`<div class="parte-adv"><strong>Advogado(s):</strong> ${advs.map(a=>`${a.nome}${a.numero_oab?' (OAB/'+a.uf_oab+' '+a.numero_oab+')':''}`).join(', ')}</div>`:'';
+    
+    return`<div class="parte-card">
+      <div class="parte-tipo ${tipoClass}">${papel}</div>
+      <div class="parte-nome">${p.nome||'-'}</div>
+      ${advsHtml}
+    </div>`;
+  }).join('');
+}
 
-async function loadPartes(cnj){document.getElementById('modalPartes').innerHTML='';document.getElementById('modalPartesLoading').style.display='flex';try{const data=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');const lista=Array.isArray(data)?data:(data.partes||[]);document.getElementById('modalPartesLoading').style.display='none';if(lista.length===0){document.getElementById('modalPartes').innerHTML='<div style="text-align:center;padding:16px;font-size:11px;color:var(--text-muted)">Nenhuma parte encontrada</div>'}else{document.getElementById('modalPartes').innerHTML=lista.map(p=>`<div class="parte-card"><div class="parte-tipo ${(p.tipo||'').toLowerCase().includes('ativo')?'autor':'reu'}">${p.tipo||'Parte'}</div><div class="parte-nome">${p.nome||'-'}</div><div class="parte-doc">${p.documento||''}</div>${p.advogados?.length?`<div class="parte-adv"><strong>Adv:</strong> ${p.advogados.map(a=>a.nome+(a.oab?' ('+a.oab+')':'')).join(', ')}</div>`:''}</div>`).join('')}}catch(e){document.getElementById('modalPartesLoading').style.display='none';document.getElementById('modalPartes').innerHTML='<div style="text-align:center;padding:16px;font-size:11px;color:var(--error)">Erro ao carregar</div>'}}
+function showModalTab(tab,el){
+  document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('modalTabDados').style.display=tab==='dados'?'block':'none';
+  document.getElementById('modalTabPartes').style.display=tab==='partes'?'block':'none';
+}
 
-function closeModal(){document.getElementById('modalOverlay').classList.remove('active');currentProcesso=null}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  currentProcesso=null;
+}
 
-async function loadWatchlist(){document.getElementById('watchLoading').style.display='flex';document.getElementById('watchResults').innerHTML='';document.getElementById('watchEmpty').style.display='none';try{const data=await apiCall('/watchlist');watchlistCache=Array.isArray(data)?data:(data.items||data.watchlist||[]);document.getElementById('watchLoading').style.display='none';document.getElementById('watchBadge').textContent=watchlistCache.length;document.getElementById('statWatched').textContent=watchlistCache.length;document.getElementById('watchSubtitle').textContent=watchlistCache.length+' processo(s) monitorado(s)';if(watchlistCache.length===0){document.getElementById('watchEmpty').style.display='block'}else{document.getElementById('watchResults').innerHTML=watchlistCache.map(w=>`<div class="processo-card" onclick="openModal('${w.cnj||w.processo_numero}')"><div class="processo-header"><span class="processo-cnj">${w.cnj||w.processo_numero||'-'}</span><span style="font-size:10px;color:var(--text-muted)">Adicionado: ${formatDate(w.created_at)}</span></div></div>`).join('')}}catch(e){document.getElementById('watchLoading').style.display='none';document.getElementById('watchEmpty').innerHTML='<div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div style="font-size:11px;margin-top:4px">'+e.message+'</div>';document.getElementById('watchEmpty').style.display='block'}}
+async function loadWatchlist(){
+  document.getElementById('watchLoading').style.display='flex';
+  document.getElementById('watchResults').innerHTML='';
+  document.getElementById('watchEmpty').style.display='none';
+  try{
+    const data=await apiCall('/watchlist');
+    watchlistCache=data.data||data.items||data.watchlist||(Array.isArray(data)?data:[]);
+    document.getElementById('watchLoading').style.display='none';
+    document.getElementById('watchBadge').textContent=watchlistCache.length;
+    document.getElementById('statWatched').textContent=watchlistCache.length;
+    document.getElementById('watchSubtitle').textContent=watchlistCache.length+' processo(s) monitorado(s)';
+    if(watchlistCache.length===0){
+      document.getElementById('watchEmpty').style.display='block';
+    }else{
+      document.getElementById('watchResults').innerHTML=watchlistCache.map(w=>{
+        const procNum=w.processo_numero||w.cnj||'';
+        return`<div class="processo-card" onclick="openModal('${procNum}')">
+          <div class="processo-header">
+            <span class="processo-cnj">${formatCNJ(procNum)}</span>
+            <span style="font-size:10px;color:var(--text-muted)">Adicionado: ${formatDate(w.created_at)}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }catch(e){
+    document.getElementById('watchLoading').style.display='none';
+    document.getElementById('watchEmpty').innerHTML='<div class="empty-icon">⚠️</div><div class="empty-title">Erro</div><div style="font-size:11px;margin-top:4px">'+e.message+'</div>';
+    document.getElementById('watchEmpty').style.display='block';
+  }
+}
 
-async function addToWatchlist(){if(!currentProcesso)return;const cnj=currentProcesso.numero_cnj,btn=document.getElementById('modalWatchBtn');btn.disabled=true;btn.innerHTML='<span class="spinner" style="width:12px;height:12px;border-width:2px"></span>';try{await apiCall('/watchlist',{method:'POST',body:JSON.stringify({cnj})});showToast('Adicionado à watchlist!');closeModal();loadWatchlist()}catch(e){showToast('Erro: '+e.message,true)}btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> + Watchlist'}
+async function addToWatchlist(){
+  if(!currentProcesso)return;
+  const procNum=currentProcesso.processo_numero;
+  const btn=document.getElementById('modalWatchBtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner" style="width:12px;height:12px;border-width:2px"></span>';
+  try{
+    await apiCall('/watchlist',{method:'POST',body:JSON.stringify({processo_numero:procNum})});
+    showToast('Adicionado à watchlist!');
+    closeModal();
+    loadWatchlist();
+  }catch(e){
+    showToast('Erro: '+e.message,true);
+  }
+  btn.disabled=false;
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg> + Watchlist';
+}
 
-function selectExportOption(el,type){document.querySelectorAll('.export-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');exportType=type}
+function selectExportOption(el,type){
+  document.querySelectorAll('.export-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  exportType=type;
+}
 
-function updateExportDesc(){document.getElementById('exportBuscaDesc').textContent=lastSearchResults.length>0?lastSearchResults.length+' processos da última busca':'Nenhuma busca realizada';document.getElementById('exportWatchDesc').textContent=watchlistCache.length+' processos monitorados'}
+function updateExportDesc(){
+  document.getElementById('exportBuscaDesc').textContent=lastSearchResults.length>0?lastSearchResults.length+' processos da última busca':'Nenhuma busca realizada';
+  document.getElementById('exportWatchDesc').textContent=watchlistCache.length+' processos monitorados';
+}
 
-function exportToExcel(){const data=exportType==='busca'?lastSearchResults:watchlistCache;if(data.length===0){showToast('Nenhum dado para exportar',true);return}const rows=data.map(p=>({'Número CNJ':p.numero_cnj||p.cnj||p.processo_numero||'-','Tribunal':p.tribunal||'-','Classe':p.classe||'-','Assunto':p.assunto||'-','Polo Ativo':p.polo_ativo||'-','Polo Passivo':p.polo_passivo||'-','Comarca':p.comarca||'-','Vara':p.vara||'-','Valor da Causa':p.valor_causa||0,'Status':p.status||'-','Data Distribuição':p.data_distribuicao||'-','Última Movimentação':p.ultima_movimentacao||'-'}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Processos');XLSX.writeFile(wb,'legalscraper_'+(exportType==='busca'?'busca':'watchlist')+'_'+new Date().toISOString().slice(0,10)+'.xlsx');showToast('Excel exportado!')}
+function exportToExcel(){
+  const data=exportType==='busca'?lastSearchResults:watchlistCache;
+  if(data.length===0){showToast('Nenhum dado para exportar',true);return}
+  
+  // Mapeia todos os campos da API para o Excel
+  const rows=data.map(p=>{
+    let autor='-',reu='-';
+    if(p.partes&&p.partes.length>0){
+      const autorParte=p.partes.find(x=>x.papel&&x.papel.toUpperCase().includes('AUTOR'));
+      const reuParte=p.partes.find(x=>x.papel&&(x.papel.toUpperCase().includes('REU')||x.papel.toUpperCase().includes('RÉU')));
+      if(autorParte)autor=autorParte.nome||'-';
+      if(reuParte)reu=reuParte.nome||'-';
+    }
+    
+    return{
+      'Número Processo':formatCNJ(p.processo_numero),
+      'Tribunal':p.tribunal||'-',
+      'Classe':p.classe||'-',
+      'Assunto':p.assunto||'-',
+      'Autor':autor,
+      'Réu':reu,
+      'Foro':p.foro||'-',
+      'Vara':p.vara||'-',
+      'Juiz':p.juiz||'-',
+      'Valor da Causa':p.valor_causa||0,
+      'Distribuição':p.distribuicao_data||'-',
+      'Última Mov. Data':p.ultima_movimentacao_data||'-',
+      'Última Mov. Texto':p.ultima_movimentacao_texto||'-',
+      'Status':p.status_processamento||'-',
+      'Sistema':p.sistema_origem||'-'
+    };
+  });
+  
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Processos');
+  XLSX.writeFile(wb,'legalscraper_'+(exportType==='busca'?'busca':'watchlist')+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('Excel exportado!');
+}
 
-document.addEventListener('DOMContentLoaded',()=>{const savedToken=localStorage.getItem('ls_token'),savedUser=localStorage.getItem('ls_user');if(savedToken&&savedUser){token=savedToken;currentUser=JSON.parse(savedUser);document.getElementById('sidebarName').textContent=currentUser.username;document.getElementById('sidebarRole').textContent=currentUser.role;document.getElementById('sidebarAvatar').textContent=currentUser.username.charAt(0).toUpperCase();document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('active');initApp()}['loginUsername','loginPassword'].forEach(id=>{document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin()})});document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()})});
+document.addEventListener('DOMContentLoaded',()=>{
+  const savedToken=localStorage.getItem('ls_token');
+  const savedUser=localStorage.getItem('ls_user');
+  if(savedToken&&savedUser){
+    token=savedToken;
+    currentUser=JSON.parse(savedUser);
+    document.getElementById('sidebarName').textContent=currentUser.username;
+    document.getElementById('sidebarRole').textContent=currentUser.role;
+    document.getElementById('sidebarAvatar').textContent=currentUser.username.charAt(0).toUpperCase();
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('app').classList.add('active');
+    initApp();
+  }
+  ['loginUsername','loginPassword'].forEach(id=>{
+    document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin()});
+  });
+  document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+});
 </script>
 </body>
 </html>
