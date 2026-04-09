@@ -372,7 +372,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="toast" class="toast"><span id="toastIcon">✓</span><span id="toastMsg"></span></div>
 
 <script>
-const API_BASE='https://legalscraper-c5a19f03fe5f.herokuapp.com',API_VERSION='/v1';
+const API_BASE='https://legal-scraper-api-production.up.railway.app',API_VERSION='/v1';
 let token=null,currentUser=null,currentProcesso=null,watchlistCache=[],lastSearchResults=[],exportType='busca',totalProcessos=0,maiorValor=0;
 let currentPage=1,totalPages=1,currentLimit=20;
 
@@ -699,4 +699,3 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 </body>
 </html>
-
