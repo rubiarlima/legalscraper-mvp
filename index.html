@@ -14,7 +14,6 @@ body{font-family:var(--font-sans);background:var(--off-white);color:var(--grafit
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* LOGIN */
 .login-wrapper{height:100vh;display:flex;align-items:center;justify-content:center;background:var(--grafite);position:relative;overflow:hidden}
 .login-bg{position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(0,96,100,0.12) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,64,16,0.08) 0%,transparent 40%)}
 .login-container{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:340px;padding:0 20px;animation:fadeUp .4s ease-out}
@@ -48,19 +47,14 @@ body{font-family:var(--font-sans);background:var(--off-white);color:var(--grafit
 .watermark{position:fixed;bottom:12px;right:16px;font-size:9px;color:rgba(255,255,255,0.1);z-index:10}
 .watermark-app{color:rgba(0,0,0,0.05)}
 
-/* APP */
 .app{display:none;min-height:100vh;background:var(--off-white)}
 .app.active{display:flex}
 
-/* SIDEBAR */
 .sidebar{width:210px;min-width:210px;background:var(--grafite);color:#fff;display:flex;flex-direction:column;padding:18px 0;position:fixed;left:0;top:0;height:100vh;overflow-y:auto}
-
-/* LOGO - ALINHADO À ESQUERDA */
 .logo{padding:2px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .logo-text{font-size:10px;font-weight:100;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:3px}
 .logo-product{font-size:17px;font-weight:700;color:#fff}
 .logo-product span{color:rgba(255,255,255,0.45)}
-
 .menu-label{font-size:9px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:18px 18px 8px}
 nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:400;color:rgba(255,255,255,0.55);background:transparent;border:none;width:100%;text-align:left;font-family:inherit;border-left:3px solid transparent;transition:all .12s ease}
@@ -79,7 +73,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .sidebar-logout:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.08)}
 .sidebar-logout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
 
-/* MAIN */
 .main{flex:1;margin-left:210px;padding:22px 28px;min-height:100vh}
 .page{display:none;animation:fadeIn .2s ease;max-width:1100px}
 .page.active{display:block}
@@ -87,7 +80,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .page-title{font-size:18px;font-weight:700;color:var(--grafite);margin-bottom:3px}
 .page-subtitle{font-size:12px;color:var(--text-muted)}
 
-/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
 .stat-card{background:#fff;border-radius:10px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);border-left:4px solid var(--azul-petroleo);transition:box-shadow .15s}
 .stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
@@ -99,11 +91,9 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .stat-card.disabled{opacity:.5}
 .stat-card.disabled .stat-meta{font-style:italic}
 
-/* CARD */
 .card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:16px}
 .card-title{font-size:13px;font-weight:700;color:var(--grafite);margin-bottom:14px}
 
-/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:all .12s}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 .btn-primary{background:var(--azul-petroleo);color:#fff}
@@ -116,10 +106,13 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .btn-ghost:hover{border-color:#bbb;color:var(--grafite)}
 .btn-success{background:var(--success);color:#fff}
 .btn-success:hover{background:#1b5e20}
+.btn-danger{background:var(--error);color:#fff}
+.btn-danger:hover{background:#b71c1c}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn-sm svg{width:12px;height:12px}
 .btn.hidden{display:none}
 .quick-actions{display:flex;gap:10px;flex-wrap:wrap}
 
-/* SEARCH & FILTERS */
 .search-bar{display:flex;gap:10px;margin-bottom:14px}
 .search-bar input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s}
 .search-bar input:focus{border-color:var(--azul-petroleo)}
@@ -133,9 +126,9 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .filter-group input[type="number"]{width:120px}
 .filter-group select{min-width:115px}
 
-/* PROCESSO CARD */
 .processo-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:12px;border:1.5px solid transparent;cursor:pointer;transition:all .12s}
 .processo-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 16px rgba(0,96,100,0.1);transform:translateY(-1px)}
+.processo-card.in-watchlist{border-color:var(--success);background:linear-gradient(135deg,#fff 0%,var(--success-bg) 100%)}
 .processo-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
 .processo-header-left{flex:1;min-width:0}
 .processo-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
@@ -153,14 +146,19 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .processo-label{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px}
 .processo-value{color:var(--grafite);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* RESULTS */
+.watch-card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:10px;border:1.5px solid var(--border-light);display:flex;align-items:center;gap:16px;transition:all .12s}
+.watch-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 12px rgba(0,96,100,0.08)}
+.watch-card-info{flex:1;min-width:0;cursor:pointer}
+.watch-card-cnj{font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--azul-petroleo)}
+.watch-card-meta{font-size:11px;color:var(--text-muted);margin-top:4px}
+.watch-card-actions{display:flex;gap:8px}
+
 .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
 .results-count{font-size:12px;color:var(--text-muted)}
 .results-actions{display:flex;align-items:center;gap:12px}
 .results-limit{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted)}
 .results-limit select{padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:inherit;background:#fff;cursor:pointer}
 
-/* PAGINATION */
 .pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light)}
 .pagination-btn{padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:1.5px solid var(--border);background:#fff;color:var(--grafite);display:flex;align-items:center;gap:5px;transition:all .12s}
 .pagination-btn:hover:not(:disabled){border-color:var(--azul-petroleo);color:var(--azul-petroleo);background:var(--info-bg)}
@@ -169,7 +167,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .pagination-info{font-size:12px;color:var(--text-muted);font-weight:500}
 .pagination-info strong{color:var(--grafite)}
 
-/* LOADING & EMPTY */
 .loading-container{display:flex;flex-direction:column;align-items:center;padding:50px 20px;color:var(--text-muted)}
 .loading-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--azul-petroleo);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
 .loading-text{font-size:13px}
@@ -177,7 +174,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .empty-icon{font-size:42px;margin-bottom:12px;opacity:.25}
 .empty-title{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--grafite)}
 
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
 .modal-overlay.active{display:flex}
 .modal{background:#fff;border-radius:12px;padding:24px;width:92%;max-width:640px;max-height:85vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:fadeUp .2s ease}
@@ -197,7 +193,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .modal-value{font-size:13px;font-weight:500;color:var(--grafite)}
 .modal-actions{display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light)}
 
-/* PARTES */
 .parte-card{background:var(--off-white);border-radius:8px;padding:14px;margin-bottom:10px}
 .parte-papel{font-size:9px;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
 .parte-papel.autor{color:var(--azul-petroleo);background:var(--info-bg)}
@@ -205,7 +200,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .parte-nome{font-size:13px;font-weight:600;color:var(--grafite)}
 .parte-adv{font-size:11px;color:var(--text-muted);margin-top:8px}
 
-/* EXPORT */
 .export-option{display:flex;align-items:center;gap:14px;padding:18px;background:#fff;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:12px;transition:all .12s}
 .export-option:hover{border-color:var(--azul-petroleo)}
 .export-option.selected{border-color:var(--azul-petroleo);background:var(--info-bg)}
@@ -214,23 +208,25 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .export-title{font-size:14px;font-weight:600;color:var(--grafite)}
 .export-desc{font-size:11px;color:var(--text-muted);margin-top:3px}
 
-/* TOAST */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:12px 18px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:200;font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;animation:fadeUp .2s ease}
 .toast.active{display:flex}
 .toast.error{background:var(--error)}
 
-/* DEMO BANNER */
 .demo-banner{background:linear-gradient(135deg,#fff8e1 0%,#ffecb3 100%);border:1px solid #ffca28;color:#f57c00;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;display:none;align-items:center;gap:8px;font-weight:500}
 .demo-banner.active{display:flex}
 
-/* RESPONSIVE */
+.confirm-dialog{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:380px;text-align:center}
+.confirm-icon{font-size:48px;margin-bottom:16px}
+.confirm-title{font-size:16px;font-weight:700;color:var(--grafite);margin-bottom:8px}
+.confirm-text{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+
 @media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.modal-grid{grid-template-columns:1fr}.main{padding:18px 20px;margin-left:190px}.sidebar{width:190px;min-width:190px}.processo-body{grid-template-columns:1fr}}
 @media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr}.filters-row{flex-direction:column;align-items:stretch}.filter-group select,.filter-group input{width:100%}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginPage" class="login-wrapper">
 <div class="login-bg"></div>
 <div class="login-container">
@@ -247,12 +243,11 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v1.7.3</div>
+<div class="login-footer">v1.8.0</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
 
-<!-- APP -->
 <div id="app" class="app">
 <aside class="sidebar">
 <div class="logo">
@@ -281,7 +276,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <main class="main">
 <div id="demoBanner" class="demo-banner"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span>Modo demonstração — algumas funcionalidades estão restritas</span></div>
 
-<!-- INÍCIO -->
 <div id="page-inicio" class="page active">
 <div class="page-header"><div class="page-title">Painel</div><div class="page-subtitle">Resumo de acompanhamento processual</div></div>
 <div class="stats-grid">
@@ -299,7 +293,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 </div>
 </div>
 
-<!-- CONSULTAR -->
 <div id="page-consultar" class="page">
 <div class="page-header"><div class="page-title">Consultar Processos</div><div class="page-subtitle">Busque por nome da parte, tribunal ou valor</div></div>
 <div class="card">
@@ -322,7 +315,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="paginationContainer" class="pagination" style="display:none"><button class="pagination-btn" id="btnPrev" onclick="goToPage(currentPage-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Anterior</button><div class="pagination-info"><strong id="pageInfo">Página 1 de 1</strong></div><button class="pagination-btn" id="btnNext" onclick="goToPage(currentPage+1)">Próximo <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button></div>
 </div>
 
-<!-- WATCHLIST -->
 <div id="page-watchlist" class="page">
 <div class="page-header"><div class="page-title">Watchlist</div><div class="page-subtitle" id="watchSubtitle">Processos monitorados</div></div>
 <div id="watchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Carregando watchlist...</div></div>
@@ -330,7 +322,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="watchEmpty" class="empty-state"><div class="empty-icon">👁️</div><div class="empty-title">Watchlist vazia</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Adicione processos para monitorar</div></div>
 </div>
 
-<!-- EXPORTAR -->
 <div id="page-exportar" class="page">
 <div class="page-header"><div class="page-title">Exportar Dados</div><div class="page-subtitle">Baixe os dados em formato Excel</div></div>
 <div class="card">
@@ -344,7 +335,6 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="watermark watermark-app">© 2026 Opportium</div>
 </div>
 
-<!-- MODAL -->
 <div id="modalOverlay" class="modal-overlay" onclick="closeModal()">
 <div class="modal" onclick="event.stopPropagation()">
 <div class="modal-header">
@@ -361,20 +351,32 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="modal-section"><div class="modal-section-title">Partes Envolvidas</div><div id="modalPartes"></div></div>
 <div class="modal-section" id="modalMovSection" style="display:none"><div class="modal-section-title">Última Movimentação</div><div id="modalMov"></div></div>
 <div class="modal-actions">
-<button class="btn btn-primary" id="modalWatchBtn" onclick="addToWatchlist()"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Adicionar à Watchlist</button>
+<button class="btn btn-primary" id="modalWatchBtn" onclick="toggleWatchlist()"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> <span id="modalWatchText">Adicionar à Watchlist</span></button>
 <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
 </div>
 </div>
 </div>
 </div>
 
-<!-- TOAST -->
+<div id="confirmOverlay" class="modal-overlay" onclick="closeConfirm()">
+<div class="confirm-dialog" onclick="event.stopPropagation()">
+<div class="confirm-icon">🗑️</div>
+<div class="confirm-title">Remover da Watchlist?</div>
+<div class="confirm-text" id="confirmText">Deseja remover este processo da sua watchlist?</div>
+<div class="confirm-actions">
+<button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
+<button class="btn btn-danger" id="confirmBtn" onclick="confirmRemove()">Remover</button>
+</div>
+</div>
+</div>
+
 <div id="toast" class="toast"><span id="toastIcon">✓</span><span id="toastMsg"></span></div>
 
 <script>
 const API_BASE='https://legal-scraper-api-production.up.railway.app',API_VERSION='/v1';
 let token=null,currentUser=null,currentProcesso=null,watchlistCache=[],lastSearchResults=[],exportType='busca',totalProcessos=0,maiorValor=0;
 let currentPage=1,totalPages=1,currentLimit=20;
+let pendingRemoveId=null;
 
 const PERMISSIONS={'frontend_ops':{watchlist:true},'frontend_user':{watchlist:true},'demo_user':{watchlist:false},'demo':{watchlist:false},'default':{watchlist:true}};
 const getUserPermissions=()=>{if(!currentUser||!currentUser.role)return PERMISSIONS.default;return PERMISSIONS[currentUser.role.toLowerCase()]||PERMISSIONS.default};
@@ -384,9 +386,7 @@ const isDemoUser=()=>currentUser&&currentUser.role&&currentUser.role.toLowerCase
 const applyPermissions=()=>{
   const p=getUserPermissions();
   const isDemo=isDemoUser();
-  // Sidebar watchlist
   document.getElementById('navWatchlist').classList.toggle('hidden',!p.watchlist);
-  // Card de watchlist - mostrar mas com estado diferente para demo
   const cardWatched=document.getElementById('statCardWatched');
   if(isDemo){
     cardWatched.classList.add('disabled');
@@ -396,16 +396,12 @@ const applyPermissions=()=>{
     cardWatched.classList.remove('disabled');
     document.getElementById('statWatchedMeta').textContent='Na sua watchlist';
   }
-  // Botão watchlist
   const btnQuick=document.getElementById('btnQuickWatchlist');
   if(isDemo){btnQuick.disabled=true;btnQuick.classList.add('hidden')}else{btnQuick.disabled=false;btnQuick.classList.remove('hidden')}
-  // Modal btn
   document.getElementById('modalWatchBtn').classList.toggle('hidden',!p.watchlist);
-  // Export option
   const ew=document.getElementById('exportWatchlistOption');
   ew.classList.toggle('disabled',!p.watchlist);
   if(!p.watchlist){ew.classList.remove('selected');document.querySelector('.export-option').classList.add('selected');exportType='busca'}
-  // Banner
   document.getElementById('demoBanner').classList.toggle('active',isDemo);
 };
 
@@ -418,7 +414,18 @@ const getStatusClass=s=>{if(!s)return'normalizado';const x=s.toUpperCase();retur
 const getStatusLabel=s=>{if(!s)return'OK';const x=s.toUpperCase();return x.includes('PROCESSANDO')?'Processando':x.includes('ERRO')?'Erro':'OK'};
 const truncate=(s,l=45)=>!s?'-':s.length>l?s.substring(0,l)+'...':s;
 const showToast=(m,e=false)=>{const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=m;document.getElementById('toastIcon').textContent=e?'✕':'✓';t.className='toast active'+(e?' error':'');setTimeout(()=>t.classList.remove('active'),3000)};
-const apiCall=async(ep,opt={})=>{const h={'Content-Type':'application/json',...opt.headers};if(token)h['Authorization']='Bearer '+token;const r=await fetch(API_BASE+API_VERSION+ep,{...opt,headers:h});if(r.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.detail||e.message||'Erro')}return r.json()};
+
+const apiCall=async(ep,opt={})=>{
+  const h={'Content-Type':'application/json',...opt.headers};
+  if(token)h['Authorization']='Bearer '+token;
+  const r=await fetch(API_BASE+API_VERSION+ep,{...opt,headers:h});
+  if(r.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.detail||e.message||'Erro')}
+  return r.json();
+};
+
+const isInWatchlist=(cnj)=>watchlistCache.some(w=>(w.processo_numero||w.cnj)===cnj);
+const getWatchlistId=(cnj)=>{const item=watchlistCache.find(w=>(w.processo_numero||w.cnj)===cnj);return item?item.id||item.watchlist_id:null};
 
 let captchaChecked=false;
 const togglePassword=()=>{const i=document.getElementById('loginPassword'),b=document.querySelector('.password-toggle');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Mostrar':'Ocultar'};
@@ -457,10 +464,10 @@ const initApp=async()=>{
   if(canUseWatchlist())loadWatchlist();
   try{
     const d=await apiCall('/processos?limit=100');
-    const lista=d.data||d.items||[];
+    const lista=d.data||d.items||d.processos||[];
     if(d.total_count){totalProcessos=d.total_count;document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR')}
     if(lista.length>0){maiorValor=Math.max(...lista.map(p=>p.valor_causa||0));document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
-  }catch(e){}
+  }catch(e){console.log('Init error:',e)}
 };
 
 const showPage=(id,el)=>{
@@ -555,10 +562,11 @@ const renderCard=p=>{
   const num=p.processo_numero||'',cnj=formatCNJ(num),trib=p.tribunal||'-',valor=p.valor_causa,status=p.status_processamento||'';
   const classe=p.classe||'',assunto=p.assunto||'',foro=p.foro||'',vara=p.vara||'',autor=p.autor||'',reu=p.reu||'';
   const tc=getTribunalClass(trib),sc=getStatusClass(status),sl=getStatusLabel(status),vs=formatCurrency(valor);
+  const inWatch=isInWatchlist(num);
   let loc='-';if(foro&&vara)loc=foro+' — '+vara;else if(foro)loc=foro;else if(vara)loc=vara;
-  return '<div class="processo-card" onclick="openModal(\''+num+'\')">'
+  return '<div class="processo-card'+(inWatch?' in-watchlist':'')+'" onclick="openModal(\''+num+'\')">'
     +'<div class="processo-header"><div class="processo-header-left">'
-    +'<div class="processo-top"><span class="processo-cnj">'+cnj+'</span><span class="tribunal-badge '+tc+'">'+trib+'</span></div>'
+    +'<div class="processo-top"><span class="processo-cnj">'+cnj+'</span><span class="tribunal-badge '+tc+'">'+trib+'</span>'+(inWatch?'<span style="font-size:10px;color:var(--success)">★ Monitorado</span>':'')+'</div>'
     +(classe?'<div class="processo-classe">'+truncate(classe,55)+'</div>':'')
     +'</div><div class="processo-header-right">'+(vs?'<div class="processo-valor">'+vs+'</div>':'')
     +'<span class="processo-status '+sc+'">'+sl+'</span></div></div>'
@@ -578,6 +586,7 @@ const openModal=async num=>{
   document.getElementById('modalStatus').textContent='...';
   document.getElementById('modalValor').textContent='';
   document.getElementById('modalOverlay').classList.add('active');
+  updateModalWatchBtn(num);
   try{
     const p=await apiCall('/processos/'+encodeURIComponent(num));
     currentProcesso=p;
@@ -587,16 +596,31 @@ const openModal=async num=>{
     document.getElementById('modalStatus').textContent=getStatusLabel(p.status_processamento);
     document.getElementById('modalCNJ').textContent=formatCNJ(p.processo_numero);
     document.getElementById('modalValor').textContent=formatCurrency(p.valor_causa)||'';
+    updateModalWatchBtn(p.processo_numero);
     const campos=[['Classe',p.classe],['Assunto',p.assunto],['Foro',p.foro],['Vara',p.vara],['Juiz',p.juiz],['Distribuição',p.distribuicao_data||formatDate(p.data_distribuicao)],['Área',p.area],['Instância',p.instancia],['Sistema',p.sistema_origem?p.sistema_origem.toUpperCase():''],['Atualização',formatDate(p.ultima_atualizacao)]].filter(function(c){return c[1]&&c[1]!=='-'&&c[1]!=='null'});
     document.getElementById('modalGridInfo').innerHTML=campos.map(function(c){return '<div><div class="modal-label">'+c[0]+'</div><div class="modal-value">'+c[1]+'</div></div>'}).join('');
     renderPartes(p.partes||[],p.autor,p.reu);
     if(p.ultima_movimentacao_texto||p.ultima_movimentacao_data){
       document.getElementById('modalMovSection').style.display='block';
-      document.getElementById('modalMov').innerHTML='<div style="background:var(--off-white);border-radius:8px;padding:12px">'+(p.ultima_movimentacao_data?'<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">'+p.ultima_movimentacao_data+'</div>':'')+'<div style="font-size:12px">'+( p.ultima_movimentacao_texto||'-')+'</div></div>';
+      document.getElementById('modalMov').innerHTML='<div style="background:var(--off-white);border-radius:8px;padding:12px">'+(p.ultima_movimentacao_data?'<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">'+p.ultima_movimentacao_data+'</div>':'')+'<div style="font-size:12px">'+(p.ultima_movimentacao_texto||'-')+'</div></div>';
     }else{document.getElementById('modalMovSection').style.display='none'}
     document.getElementById('modalLoading').style.display='none';
     document.getElementById('modalContent').style.display='block';
   }catch(e){showToast('Erro: '+e.message,true);closeModal()}
+};
+
+const updateModalWatchBtn=(cnj)=>{
+  const inWatch=isInWatchlist(cnj);
+  const btn=document.getElementById('modalWatchBtn');
+  const txt=document.getElementById('modalWatchText');
+  if(inWatch){
+    btn.className='btn btn-danger';
+    txt.textContent='Remover da Watchlist';
+  }else{
+    btn.className='btn btn-primary';
+    txt.textContent='Adicionar à Watchlist';
+  }
+  if(!canUseWatchlist())btn.classList.add('hidden');
 };
 
 const renderPartes=(partes,autorStr,reuStr)=>{
@@ -624,7 +648,7 @@ const loadWatchlist=async()=>{
   document.getElementById('watchResults').innerHTML='';
   document.getElementById('watchEmpty').style.display='none';
   try{
-    const d=await apiCall('/watchlist');
+    const d=await apiCall('/watchlist/');
     watchlistCache=d.data||d.items||d.watchlist||(Array.isArray(d)?d:[]);
     document.getElementById('watchLoading').style.display='none';
     document.getElementById('watchBadge').textContent=watchlistCache.length;
@@ -634,7 +658,8 @@ const loadWatchlist=async()=>{
     else{
       document.getElementById('watchResults').innerHTML=watchlistCache.map(function(w){
         const n=w.processo_numero||w.cnj||'';
-        return '<div class="processo-card" onclick="openModal(\''+n+'\')"><div class="processo-header"><div class="processo-header-left"><div class="processo-top"><span class="processo-cnj">'+formatCNJ(n)+'</span></div></div><div class="processo-header-right"><span style="font-size:10px;color:var(--text-muted)">Adicionado: '+(formatDate(w.created_at)||'-')+'</span></div></div></div>';
+        const wid=w.id||w.watchlist_id;
+        return '<div class="watch-card"><div class="watch-card-info" onclick="openModal(\''+n+'\')"><div class="watch-card-cnj">'+formatCNJ(n)+'</div><div class="watch-card-meta">Adicionado: '+(formatDate(w.created_at)||'-')+'</div></div><div class="watch-card-actions"><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();askRemove('+wid+',\''+n+'\')"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remover</button></div></div>';
       }).join('');
     }
   }catch(e){
@@ -644,18 +669,50 @@ const loadWatchlist=async()=>{
   }
 };
 
+const toggleWatchlist=async()=>{
+  if(!canUseWatchlist()||!currentProcesso)return;
+  const cnj=currentProcesso.processo_numero;
+  if(isInWatchlist(cnj)){
+    const wid=getWatchlistId(cnj);
+    if(wid)askRemove(wid,cnj);
+  }else{
+    await addToWatchlist();
+  }
+};
+
 const addToWatchlist=async()=>{
-  if(!canUseWatchlist()){showToast('Não disponível no modo demo',true);return}
-  if(!currentProcesso)return;
+  if(!canUseWatchlist()||!currentProcesso)return;
   const n=currentProcesso.processo_numero,btn=document.getElementById('modalWatchBtn');
-  btn.disabled=true;btn.innerHTML='<span class="loading-spinner" style="width:14px;height:14px;border-width:2px"></span> Adicionando...';
+  btn.disabled=true;
   try{
-    await apiCall('/watchlist',{method:'POST',body:JSON.stringify({processo_numero:n})});
+    await apiCall('/watchlist/',{method:'POST',body:JSON.stringify({processo_numero:n})});
     showToast('Processo adicionado à watchlist');
-    closeModal();loadWatchlist();
+    await loadWatchlist();
+    updateModalWatchBtn(n);
   }catch(e){showToast('Erro: '+e.message,true)}
   btn.disabled=false;
-  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Adicionar à Watchlist';
+};
+
+const askRemove=(wid,cnj)=>{
+  pendingRemoveId=wid;
+  document.getElementById('confirmText').textContent='Remover '+formatCNJ(cnj)+' da watchlist?';
+  document.getElementById('confirmOverlay').classList.add('active');
+};
+
+const closeConfirm=()=>{document.getElementById('confirmOverlay').classList.remove('active');pendingRemoveId=null};
+
+const confirmRemove=async()=>{
+  if(!pendingRemoveId)return;
+  const btn=document.getElementById('confirmBtn');
+  btn.disabled=true;btn.textContent='Removendo...';
+  try{
+    await apiCall('/watchlist/'+pendingRemoveId,{method:'DELETE'});
+    showToast('Removido da watchlist');
+    closeConfirm();
+    await loadWatchlist();
+    if(currentProcesso)updateModalWatchBtn(currentProcesso.processo_numero);
+  }catch(e){showToast('Erro: '+e.message,true)}
+  btn.disabled=false;btn.textContent='Remover';
 };
 
 const selectExportOption=(el,t)=>{
@@ -694,7 +751,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   ['loginUsername','loginPassword'].forEach(function(id){document.getElementById(id).addEventListener('keydown',function(e){if(e.key==='Enter')handleLogin()})});
   document.getElementById('searchInput').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch(1)});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeConfirm()}});
 });
 </script>
 </body>
