@@ -216,6 +216,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .export-icon{font-size:28px}
 .export-title{font-size:14px;font-weight:600;color:var(--grafite)}
 .export-desc{font-size:11px;color:var(--text-muted);margin-top:3px}
+.export-buttons{display:flex;gap:12px;flex-wrap:wrap}
 
 .toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:12px 18px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:200;font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;animation:fadeUp .2s ease}
 .toast.active{display:flex}
@@ -332,13 +333,19 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 </div>
 
 <div id="page-exportar" class="page">
-<div class="page-header"><div class="page-title">Exportar Dados</div><div class="page-subtitle">Baixe os dados em formato Excel</div></div>
+<div class="page-header"><div class="page-title">Exportar Dados</div><div class="page-subtitle">Baixe os dados em Excel ou CSV</div></div>
 <div class="card">
 <div class="card-title">Selecione a origem dos dados</div>
 <div class="export-option selected" onclick="selectExportOption(this,'busca')"><div class="export-icon">📊</div><div class="export-info"><div class="export-title">Última Busca</div><div class="export-desc" id="exportBuscaDesc">Nenhuma busca realizada</div></div></div>
 <div class="export-option" id="exportWatchlistOption" onclick="selectExportOption(this,'watchlist')"><div class="export-icon">👁️</div><div class="export-info"><div class="export-title">Watchlist</div><div class="export-desc" id="exportWatchDesc">0 processos</div></div></div>
 </div>
-<button class="btn btn-success" onclick="exportToExcel()" style="margin-top:6px"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar Excel</button>
+<div class="card">
+<div class="card-title">Formato de exportação</div>
+<div class="export-buttons">
+<button class="btn btn-success" onclick="exportToExcel()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar Excel (.xlsx)</button>
+<button class="btn btn-primary" onclick="exportToCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar CSV (.csv)</button>
+</div>
+</div>
 </div>
 </main>
 <div class="watermark watermark-app">© 2026 Opportium</div>
@@ -773,6 +780,34 @@ const exportToExcel=()=>{
   XLSX.utils.book_append_sheet(wb,ws,'Processos');
   XLSX.writeFile(wb,'legalscraper_export_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('Arquivo Excel gerado com sucesso');
+};
+
+const exportToCSV=()=>{
+  const d=exportType==='busca'?lastSearchResults:watchlistCache;
+  if(d.length===0){showToast('Nenhum dado para exportar',true);return}
+  const headers=['Número CNJ','Tribunal','Classe','Assunto','Autor','Réu','Foro','Vara','Valor (R$)','Status'];
+  const rows=d.map(function(p){
+    return [
+      formatCNJ(p.processo_numero),
+      p.tribunal||'-',
+      p.classe||'-',
+      p.assunto||'-',
+      p.autor||'-',
+      p.reu||'-',
+      p.foro||'-',
+      p.vara||'-',
+      p.valor_causa||0,
+      p.status_processamento||'-'
+    ].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';');
+  });
+  const csv='\uFEFF'+headers.join(';')+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='legalscraper_export_'+new Date().toISOString().slice(0,10)+'.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast('Arquivo CSV gerado com sucesso');
 };
 
 document.addEventListener('DOMContentLoaded',function(){
