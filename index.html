@@ -146,11 +146,20 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .processo-label{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px}
 .processo-value{color:var(--grafite);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.watch-card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:10px;border:1.5px solid var(--border-light);display:flex;align-items:center;gap:16px;transition:all .12s}
-.watch-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 12px rgba(0,96,100,0.08)}
-.watch-card-info{flex:1;min-width:0;cursor:pointer}
-.watch-card-cnj{font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--azul-petroleo)}
-.watch-card-meta{font-size:11px;color:var(--text-muted);margin-top:4px}
+.watch-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:12px;border:1.5px solid var(--border-light);cursor:pointer;transition:all .12s}
+.watch-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 16px rgba(0,96,100,0.1);transform:translateY(-1px)}
+.watch-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
+.watch-card-left{flex:1;min-width:0}
+.watch-card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.watch-card-cnj{font-size:14px;font-weight:700;font-family:var(--font-mono);color:var(--azul-petroleo)}
+.watch-card-classe{font-size:11px;color:var(--text-muted)}
+.watch-card-right{text-align:right;flex-shrink:0}
+.watch-card-valor{font-size:18px;font-weight:700;color:var(--success)}
+.watch-card-body{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)}
+.watch-card-parte{font-size:12px;color:var(--grafite)}
+.watch-label{font-weight:600;color:var(--text-muted)}
+.watch-card-footer{display:flex;justify-content:space-between;align-items:center}
+.watch-card-date{font-size:10px;color:var(--text-muted)}
 .watch-card-actions{display:flex;gap:8px}
 
 .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
@@ -659,7 +668,35 @@ const loadWatchlist=async()=>{
       document.getElementById('watchResults').innerHTML=watchlistCache.map(function(w){
         const n=w.processo_numero||w.cnj||'';
         const wid=w.id||w.watchlist_id;
-        return '<div class="watch-card"><div class="watch-card-info" onclick="openModal(\''+n+'\')"><div class="watch-card-cnj">'+formatCNJ(n)+'</div><div class="watch-card-meta">Adicionado: '+(formatDate(w.created_at)||'-')+'</div></div><div class="watch-card-actions"><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();askRemove('+wid+',\''+n+'\')"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remover</button></div></div>';
+        const trib=w.tribunal||'';
+        const valor=w.valor_causa;
+        const autor=w.autor||'';
+        const reu=w.reu||'';
+        const classe=w.classe||'';
+        const tc=getTribunalClass(trib);
+        const vs=valor?formatCurrency(valor):'';
+        return '<div class="watch-card" onclick="openModal(\''+n+'\')">'
+          +'<div class="watch-card-header">'
+          +'<div class="watch-card-left">'
+          +'<div class="watch-card-top">'
+          +'<span class="watch-card-cnj">'+formatCNJ(n)+'</span>'
+          +(trib?'<span class="tribunal-badge '+tc+'">'+trib+'</span>':'')
+          +'</div>'
+          +(classe?'<div class="watch-card-classe">'+truncate(classe,50)+'</div>':'')
+          +'</div>'
+          +'<div class="watch-card-right">'
+          +(vs?'<div class="watch-card-valor">'+vs+'</div>':'')
+          +'</div>'
+          +'</div>'
+          +'<div class="watch-card-body">'
+          +(autor?'<div class="watch-card-parte"><span class="watch-label">Autor:</span> '+truncate(autor,40)+'</div>':'')
+          +(reu?'<div class="watch-card-parte"><span class="watch-label">Réu:</span> '+truncate(reu,40)+'</div>':'')
+          +'</div>'
+          +'<div class="watch-card-footer">'
+          +'<span class="watch-card-date">Adicionado: '+(formatDate(w.created_at)||'-')+'</span>'
+          +'<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();askRemove('+wid+',\''+n+'\')"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remover</button>'
+          +'</div>'
+          +'</div>';
       }).join('');
     }
   }catch(e){
