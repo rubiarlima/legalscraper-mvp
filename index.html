@@ -1115,21 +1115,24 @@ const loadWatchlist=async()=>{
     }
     // Verificar se backend já retorna campos completos
     const primeiroItem=lista[0];
-    const temDadosCompletos=primeiroItem.autor||primeiroItem.reu||primeiroItem.valor_causa;
+    const temDadosCompletos=primeiroItem.autor||primeiroItem.reu||primeiroItem.valor_causa||primeiroItem.classe;
     
     if(temDadosCompletos){
       // Backend retorna dados completos - usar direto
       watchlistCache=lista.map(w=>({...w,processo_numero:w.processo_numero||w.cnj||''}));
     }else{
       // Backend não retorna dados completos - buscar detalhes (N+1)
-      document.getElementById('watchLoading').querySelector('.loading-text').textContent='Carregando detalhes...';
+      document.getElementById('watchLoading').querySelector('.loading-text').textContent='Carregando detalhes ('+lista.length+')...';
       const detalhesPromises=lista.map(async w=>{
         const cnj=w.processo_numero||w.cnj||'';
         if(!cnj)return w;
         try{
           const det=await apiCall('/processos/'+encodeURIComponent(cnj));
-          return {...w,...det,processo_numero:cnj};
-        }catch(e){return {...w,processo_numero:cnj}}
+          return {...w,...det,processo_numero:cnj,created_at:w.created_at||w.adicionado_em};
+        }catch(e){
+          console.log('Processo não encontrado na base:',cnj);
+          return {...w,processo_numero:cnj,created_at:w.created_at||w.adicionado_em};
+        }
       });
       watchlistCache=await Promise.all(detalhesPromises);
     }
