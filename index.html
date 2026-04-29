@@ -258,7 +258,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .enrich-preview-badge{font-size:9px;background:var(--info-bg);color:var(--azul-petroleo);padding:2px 8px;border-radius:10px;font-weight:600}
 
 /* WATCHLIST CARD - OTIMIZADO COM ENRICH */
-.watch-card{background:#fff;border-radius:10px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:14px;border:1.5px solid var(--border-light);cursor:pointer;transition:all .12s}
+.watch-card{position:relative;background:#fff;border-radius:10px;padding:18px 20px 18px 46px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:14px;border:1.5px solid var(--border-light);transition:all .12s}
 .watch-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 16px rgba(0,96,100,0.1)}
 .watch-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
 .watch-left{flex:1;min-width:0}
@@ -303,6 +303,15 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .watch-body{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-light)}
 .watch-field .watch-label{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:2px}
 .watch-field .watch-value{font-size:12px;color:var(--grafite);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.watch-actions{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.watch-select-all{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);cursor:pointer}
+.watch-select-all input{width:16px;height:16px;cursor:pointer;accent-color:var(--azul-petroleo)}
+.watch-card-check{position:absolute;top:12px;left:12px}
+.watch-card-check input{width:18px;height:18px;cursor:pointer;accent-color:var(--azul-petroleo)}
+.watch-card.selected{border-color:var(--azul-petroleo);background:rgba(0,96,100,.02)}
+.btn-danger{background:var(--error);color:white;border:none}
+.btn-danger:hover{background:#a71d1d}
+.btn-sm{padding:6px 12px;font-size:11px}
 
 /* RESULTS */
 .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
@@ -406,9 +415,25 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .confirm-text{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 .confirm-actions{display:flex;gap:10px;justify-content:center}
 
+/* PROSPECÇÃO */
+.prosp-filters{display:flex;flex-direction:column;gap:16px}
+.prosp-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.prosp-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border-light)}
+.prosp-card{background:#fff;border:1.5px solid var(--border-light);border-radius:10px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:all .12s}
+.prosp-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 16px rgba(0,96,100,0.1)}
+.prosp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.prosp-cnj{font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--azul-petroleo)}
+.prosp-valor{font-size:20px;font-weight:700;color:var(--success)}
+.prosp-partes{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}
+.prosp-parte-label{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase}
+.prosp-parte-value{color:var(--grafite);margin-top:2px}
+.prosp-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:8px}
+.prosp-high{background:#e8f5e9;color:#2e7d32}
+.prosp-medium{background:#fff8e1;color:#f57c00}
+
 /* RESPONSIVE */
-@media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.modal-grid,.modal-enrich-grid{grid-template-columns:1fr}.main{padding:18px 20px;margin-left:190px}.sidebar{width:190px;min-width:190px}.processo-body{grid-template-columns:1fr}.enrich-grid{grid-template-columns:1fr}.home-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr}.filters-row{flex-direction:column;align-items:stretch}.filter-group select,.filter-group input{width:100%}.watch-partes{flex-direction:column;gap:8px}.watch-body{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.modal-grid,.modal-enrich-grid{grid-template-columns:1fr}.main{padding:18px 20px;margin-left:190px}.sidebar{width:190px;min-width:190px}.processo-body{grid-template-columns:1fr}.enrich-grid{grid-template-columns:1fr}.home-grid{grid-template-columns:1fr}.prosp-filter-row{grid-template-columns:1fr}}
+@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr}.filters-row{flex-direction:column;align-items:stretch}.filter-group select,.filter-group input{width:100%}.watch-partes{flex-direction:column;gap:8px}.watch-body{grid-template-columns:1fr}.prosp-partes{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -430,7 +455,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.4.0</div>
+<div class="login-footer">v2.5.0</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -446,6 +471,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <nav>
 <button class="nav-item active" data-page="inicio" onclick="showPage('inicio',this)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Início</button>
 <button class="nav-item" data-page="consultar" onclick="showPage('consultar',this)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Consultar</button>
+<button class="nav-item" data-page="prospeccao" onclick="showPage('prospeccao',this)"><svg viewBox="0 0 24 24"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m16.24 16.24 2.83 2.83"/><path d="M18 12h4"/><path d="m16.24 7.76 2.83-2.83"/></svg> Prospecção</button>
 <button class="nav-item" id="navWatchlist" data-page="watchlist" onclick="showPage('watchlist',this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Watchlist <span class="nav-badge" id="watchBadge">0</span></button>
 <button class="nav-item" data-page="exportar" onclick="showPage('exportar',this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar</button>
 </nav>
@@ -554,7 +580,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.4.0</span><span>•</span><span>Atualizado em Abr/2026</span></div>
+<div class="about-version"><span>Versão 2.5.0</span><span>•</span><span>Atualizado em Abr/2026</span></div>
 <a href="https://opportium.com.br" target="_blank" class="about-link">opportium.com.br ↗</a>
 </div>
 </div>
@@ -563,8 +589,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card">
 <div class="card-title">📞 Suporte</div>
 <div class="support-info">
-<div class="support-item"><span class="support-icon">📧</span><div class="support-text"><strong>Email</strong><span>suporte@opportium.com.br</span></div></div>
-<div class="support-item"><span class="support-icon">💬</span><div class="support-text"><strong>WhatsApp</strong><span>(11) 99999-0000</span></div></div>
+<div class="support-item"><span class="support-icon">📧</span><div class="support-text"><strong>Email</strong><span>contato@opportium.com.br</span></div></div>
+<div class="support-item"><span class="support-icon">💬</span><div class="support-text"><strong>WhatsApp</strong><span>+55 19 3199-1760</span></div></div>
 <div class="support-item"><span class="support-icon">🕐</span><div class="support-text"><strong>Horário</strong><span>Seg-Sex, 9h às 18h</span></div></div>
 </div>
 </div>
@@ -599,6 +625,10 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <!-- WATCHLIST -->
 <div id="page-watchlist" class="page">
 <div class="page-header"><div class="page-title">Watchlist</div><div class="page-subtitle" id="watchSubtitle">Processos monitorados</div></div>
+<div id="watchActions" class="watch-actions" style="display:none">
+<label class="watch-select-all"><input type="checkbox" id="watchSelectAll" onchange="toggleSelectAllWatch()"> <span>Selecionar todos</span></label>
+<button class="btn btn-danger btn-sm" id="watchRemoveSelected" onclick="removeSelectedWatch()"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remover selecionados (<span id="watchSelectedCount">0</span>)</button>
+</div>
 <div id="watchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Carregando watchlist...</div></div>
 <div id="watchResults"></div>
 <div id="watchEmpty" class="empty-state"><div class="empty-icon">👁️</div><div class="empty-title">Watchlist vazia</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Adicione processos para monitorar</div></div>
@@ -619,6 +649,33 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <button class="btn btn-primary" onclick="exportToCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar CSV (.csv)</button>
 </div>
 </div>
+</div>
+
+<!-- PROSPECÇÃO -->
+<div id="page-prospeccao" class="page">
+<div class="page-header"><div class="page-title">Prospecção</div><div class="page-subtitle">Encontre oportunidades com filtros avançados</div></div>
+<div class="card">
+<div class="card-title">🎯 Filtros de Prospecção</div>
+<div class="prosp-filters">
+<div class="prosp-filter-row">
+<div class="filter-group"><label>Valor mínimo (R$)</label><input type="number" id="prospValorMin" placeholder="10.000" min="0"></div>
+<div class="filter-group"><label>Valor máximo (R$)</label><input type="number" id="prospValorMax" placeholder="500.000" min="0"></div>
+<div class="filter-group"><label>Tribunal</label><select id="prospTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option><option value="TJMG">TJMG</option><option value="TJRJ">TJRJ</option><option value="TJPR">TJPR</option></select></div>
+</div>
+<div class="prosp-filter-row">
+<div class="filter-group"><label>Nome da parte (autor)</label><input type="text" id="prospAutor" placeholder="Nome do autor..."></div>
+<div class="filter-group"><label>Réu contém</label><input type="text" id="prospReu" placeholder="Banco, financeira..."></div>
+</div>
+<div class="prosp-actions">
+<button class="btn btn-ghost" onclick="clearProspFilters()"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Limpar</button>
+<button class="btn btn-primary" onclick="doProspSearch()"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg> Buscar Oportunidades</button>
+</div>
+</div>
+</div>
+<div id="prospLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Buscando oportunidades...</div></div>
+<div id="prospEmpty" class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Configure os filtros</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Use valor mínimo/máximo e tribunal para encontrar oportunidades</div></div>
+<div id="prospResultsHeader" class="results-header" style="display:none"><div class="results-count" id="prospResultsCount"></div></div>
+<div id="prospResults"></div>
 </div>
 </main>
 <div class="watermark watermark-app">© 2026 Opportium</div>
@@ -902,11 +959,10 @@ const doSearch=async(page=1)=>{
     
     lista.sort((a,b)=>(b.valor_causa||0)-(a.valor_causa||0));
     lastSearchResults=lista;
-    totalProcessos=total;
     totalPages=Math.ceil(total/currentLimit)||1;
     currentPage=page;
     
-    document.getElementById('statTotal').textContent=total.toLocaleString('pt-BR');
+    // Não atualizar statTotal na busca - ele mostra total da base (carregado no init)
     if(lista.length>0){
       const mv=Math.max(...lista.map(p=>p.valor_causa||0));
       if(mv>maiorValor){maiorValor=mv;document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
@@ -970,6 +1026,99 @@ const renderProcessoCard=p=>{
     +'<div class="processo-field"><div class="processo-label">Assunto</div><div class="processo-value" title="'+(p.assunto||'')+'">'+truncate(p.assunto||'-')+'</div></div>'
     +'</div>'
     +enrichHtml
+    +'</div>';
+};
+
+// PROSPECÇÃO
+let prospResults=[];
+
+const clearProspFilters=()=>{
+  document.getElementById('prospValorMin').value='';
+  document.getElementById('prospValorMax').value='';
+  document.getElementById('prospTribunal').value='';
+  document.getElementById('prospAutor').value='';
+  document.getElementById('prospReu').value='';
+  document.getElementById('prospResults').innerHTML='';
+  document.getElementById('prospResultsHeader').style.display='none';
+  document.getElementById('prospEmpty').style.display='block';
+  prospResults=[];
+};
+
+const doProspSearch=async()=>{
+  const valorMin=document.getElementById('prospValorMin').value;
+  const valorMax=document.getElementById('prospValorMax').value;
+  const tribunal=document.getElementById('prospTribunal').value;
+  const autor=document.getElementById('prospAutor').value.trim();
+  const reu=document.getElementById('prospReu').value.trim();
+  
+  document.getElementById('prospLoading').style.display='flex';
+  document.getElementById('prospEmpty').style.display='none';
+  document.getElementById('prospResults').innerHTML='';
+  document.getElementById('prospResultsHeader').style.display='none';
+  
+  try{
+    // Monta query com filtros avançados
+    let ep='/processos?limit=50';
+    if(tribunal)ep+='&tribunal='+tribunal;
+    if(valorMin)ep+='&valor_min='+valorMin;
+    if(valorMax)ep+='&valor_max='+valorMax;
+    // nome_part busca em todas as partes
+    if(autor)ep+='&nome_part='+encodeURIComponent(autor);
+    
+    const res=await apiCall(ep);
+    let lista=res.data||res.items||res.processos||(Array.isArray(res)?res:[]);
+    
+    // Filtro adicional por réu no frontend (API pode não ter esse filtro)
+    if(reu){
+      const reuLower=reu.toLowerCase();
+      lista=lista.filter(p=>(p.reu||'').toLowerCase().includes(reuLower));
+    }
+    
+    // Ordena por valor (maior primeiro)
+    lista.sort((a,b)=>(b.valor_causa||0)-(a.valor_causa||0));
+    prospResults=lista;
+    
+    document.getElementById('prospLoading').style.display='none';
+    
+    if(lista.length===0){
+      document.getElementById('prospEmpty').innerHTML='<div class="empty-icon">🔍</div><div class="empty-title">Nenhuma oportunidade encontrada</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Ajuste os filtros e tente novamente</div>';
+      document.getElementById('prospEmpty').style.display='block';
+      return;
+    }
+    
+    document.getElementById('prospResultsCount').textContent=lista.length+' oportunidade(s) encontrada(s)';
+    document.getElementById('prospResultsHeader').style.display='flex';
+    document.getElementById('prospResults').innerHTML=lista.map(renderProspCard).join('');
+  }catch(e){
+    document.getElementById('prospLoading').style.display='none';
+    document.getElementById('prospEmpty').innerHTML='<div class="empty-icon">⚠️</div><div class="empty-title">Erro na busca</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">'+e.message+'</div>';
+    document.getElementById('prospEmpty').style.display='block';
+  }
+};
+
+const renderProspCard=p=>{
+  const n=p.processo_numero||p.cnj||'';
+  const trib=p.tribunal||'';
+  const valor=p.valor_causa||0;
+  const autor=p.autor||'-';
+  const reu=p.reu||'-';
+  const tc=getTribunalClass(trib);
+  const vs=formatCurrency(valor);
+  
+  // Badge de potencial baseado no valor
+  let badge='';
+  if(valor>=100000)badge='<span class="prosp-badge prosp-high">Alto Valor</span>';
+  else if(valor>=50000)badge='<span class="prosp-badge prosp-medium">Médio Valor</span>';
+  
+  return '<div class="prosp-card" onclick="openModal(\''+n+'\')">'
+    +'<div class="prosp-header">'
+    +'<div><span class="tribunal-badge '+tc+'">'+trib+'</span> <span class="prosp-cnj">'+formatCNJ(n)+'</span>'+badge+'</div>'
+    +'<div class="prosp-valor">'+vs+'</div>'
+    +'</div>'
+    +'<div class="prosp-partes">'
+    +'<div><div class="prosp-parte-label">Autor</div><div class="prosp-parte-value">'+truncate(autor,45)+'</div></div>'
+    +'<div><div class="prosp-parte-label">Réu</div><div class="prosp-parte-value">'+truncate(reu,45)+'</div></div>'
+    +'</div>'
     +'</div>';
 };
 
@@ -1304,11 +1453,16 @@ const updateModalWatchBtn=cnj=>{
 const closeModal=()=>{document.getElementById('modalOverlay').classList.remove('active');currentProcesso=null};
 
 // WATCHLIST
+let selectedWatchItems=new Set();
+
 const loadWatchlist=async()=>{
   if(!canUseWatchlist())return;
+  selectedWatchItems.clear();
+  updateWatchActions();
   document.getElementById('watchLoading').style.display='flex';
   document.getElementById('watchResults').innerHTML='';
   document.getElementById('watchEmpty').style.display='none';
+  document.getElementById('watchActions').style.display='none';
   try{
     const d=await apiCall('/watchlist/');
     let lista=d.data||d.items||d.watchlist||(Array.isArray(d)?d:[]);
@@ -1345,6 +1499,8 @@ const loadWatchlist=async()=>{
       watchlistCache=await Promise.all(detalhesPromises);
     }
     document.getElementById('watchLoading').style.display='none';
+    document.getElementById('watchActions').style.display='flex';
+    document.getElementById('watchSelectAll').checked=false;
     document.getElementById('watchResults').innerHTML=watchlistCache.map(renderWatchCard).join('');
   }catch(e){
     document.getElementById('watchLoading').style.display='none';
@@ -1371,7 +1527,9 @@ const renderWatchCard=w=>{
   else if(foro)loc=foro;
   else if(vara)loc=vara;
   
-  return '<div class="watch-card" onclick="openModal(\''+n+'\')">'
+  return '<div class="watch-card" id="wcard-'+n.replace(/[^a-zA-Z0-9]/g,'_')+'">'
+    +'<div class="watch-card-check"><input type="checkbox" onchange="toggleWatchSelect(\''+n+'\',this)" onclick="event.stopPropagation()"></div>'
+    +'<div style="cursor:pointer" onclick="openModal(\''+n+'\')">'
     +'<div class="watch-header">'
     +'<div class="watch-left">'
     +'<div class="watch-top"><span class="watch-cnj">'+formatCNJ(n)+'</span>'+(trib?'<span class="tribunal-badge '+tc+'">'+trib+'</span>':'')+'</div>'
@@ -1389,7 +1547,78 @@ const renderWatchCard=w=>{
     +'<span class="watch-date">Adicionado: '+(formatDate(w.created_at)||'-')+'</span>'
     +'<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();askRemove(\''+n+'\')"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remover</button>'
     +'</div>'
+    +'</div>'
     +'</div>';
+};
+
+const toggleWatchSelect=(cnj,cb)=>{
+  const cardId='wcard-'+cnj.replace(/[^a-zA-Z0-9]/g,'_');
+  const card=document.getElementById(cardId);
+  if(cb.checked){
+    selectedWatchItems.add(cnj);
+    card?.classList.add('selected');
+  }else{
+    selectedWatchItems.delete(cnj);
+    card?.classList.remove('selected');
+  }
+  updateWatchActions();
+};
+
+const toggleSelectAllWatch=()=>{
+  const selectAll=document.getElementById('watchSelectAll').checked;
+  const checkboxes=document.querySelectorAll('#watchResults .watch-card-check input');
+  checkboxes.forEach(cb=>{
+    cb.checked=selectAll;
+    const cnj=watchlistCache.find(w=>{
+      const id='wcard-'+w.processo_numero.replace(/[^a-zA-Z0-9]/g,'_');
+      return cb.closest('.watch-card')?.id===id;
+    })?.processo_numero;
+    if(cnj){
+      if(selectAll)selectedWatchItems.add(cnj);
+      else selectedWatchItems.delete(cnj);
+      const card=cb.closest('.watch-card');
+      if(selectAll)card?.classList.add('selected');
+      else card?.classList.remove('selected');
+    }
+  });
+  // Simpler approach
+  if(selectAll){
+    watchlistCache.forEach(w=>selectedWatchItems.add(w.processo_numero));
+    document.querySelectorAll('.watch-card').forEach(c=>c.classList.add('selected'));
+  }else{
+    selectedWatchItems.clear();
+    document.querySelectorAll('.watch-card').forEach(c=>c.classList.remove('selected'));
+  }
+  updateWatchActions();
+};
+
+const updateWatchActions=()=>{
+  const count=selectedWatchItems.size;
+  const btn=document.getElementById('watchRemoveSelected');
+  const countEl=document.getElementById('watchSelectedCount');
+  if(btn)btn.style.display=count>0?'inline-flex':'none';
+  if(countEl)countEl.textContent=count;
+};
+
+const removeSelectedWatch=async()=>{
+  const items=[...selectedWatchItems];
+  if(items.length===0)return;
+  if(!confirm('Remover '+items.length+' processo(s) da watchlist?'))return;
+  
+  showToast('Removendo '+items.length+' processos...');
+  let errors=0;
+  for(const cnj of items){
+    try{
+      await apiCall('/watchlist/'+encodeURIComponent(cnj),{method:'DELETE'});
+    }catch(e){
+      errors++;
+      console.error('Erro ao remover',cnj,e);
+    }
+  }
+  selectedWatchItems.clear();
+  await loadWatchlist();
+  if(errors>0)showToast(errors+' erro(s) ao remover',true);
+  else showToast(items.length+' processo(s) removido(s)');
 };
 
 const toggleWatchlist=async()=>{
