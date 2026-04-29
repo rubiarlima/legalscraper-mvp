@@ -280,6 +280,12 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .enrich-status.available{color:var(--success);background:var(--success-bg)}
 .enrich-status.pending{color:var(--warning);background:var(--warning-bg)}
 .enrich-status.unavailable{color:var(--text-muted);background:#eee}
+.enrich-prompt{background:linear-gradient(135deg,#f8f9fa 0%,#e8f4f8 100%);border:1px dashed var(--azul-petroleo);border-radius:10px;padding:24px;text-align:center}
+.enrich-prompt-icon{font-size:32px;margin-bottom:10px}
+.enrich-prompt-text{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;max-width:300px;margin-left:auto;margin-right:auto}
+.enrich-prompt .btn{padding:10px 20px}
+.enrich-prompt-note{font-size:10px;color:var(--text-muted);margin-top:10px}
+.enrich-loading{display:flex;flex-direction:column;align-items:center;padding:30px;color:var(--text-muted)}
 .enrich-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
 .enrich-item{display:flex;align-items:center;gap:6px;font-size:12px}
 .enrich-item-icon{font-size:12px;opacity:.7}
@@ -424,7 +430,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.2.0</div>
+<div class="login-footer">v2.4.0</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -548,7 +554,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.2.0</span><span>•</span><span>Atualizado em Abr/2026</span></div>
+<div class="about-version"><span>Versão 2.4.0</span><span>•</span><span>Atualizado em Abr/2026</span></div>
 <a href="https://opportium.com.br" target="_blank" class="about-link">opportium.com.br ↗</a>
 </div>
 </div>
@@ -636,9 +642,21 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="modal-section"><div class="modal-section-title">👥 Partes Envolvidas</div><div id="modalPartes"></div></div>
 
 <!-- SEÇÃO DE DADOS ENRIQUECIDOS -->
-<div id="modalEnrichSection" class="modal-section" style="display:none">
-<div class="modal-section-title">📊 Dados Enriquecidos <span id="modalEnrichBadge" class="enrich-status available">✓ Disponível</span></div>
-<div id="modalEnrichContent"></div>
+<div id="modalEnrichSection" class="modal-section">
+<div class="modal-section-title">📊 Dados Enriquecidos <span id="modalEnrichBadge" class="enrich-status"></span></div>
+<div id="modalEnrichContent">
+<div id="modalEnrichPrompt" class="enrich-prompt">
+<div class="enrich-prompt-icon">🔍</div>
+<div class="enrich-prompt-text">Obtenha dados detalhados do autor: contatos, endereço, renda estimada, empresas e veículos.</div>
+<button class="btn btn-primary" id="btnEnrich" onclick="askEnrich()"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Enriquecer Dados</button>
+<div class="enrich-prompt-note">Consome 1 crédito</div>
+</div>
+<div id="modalEnrichLoading" class="enrich-loading" style="display:none">
+<div class="loading-spinner"></div>
+<div class="loading-text">Buscando dados enriquecidos...</div>
+</div>
+<div id="modalEnrichData" style="display:none"></div>
+</div>
 </div>
 
 <div class="modal-section" id="modalMovSection" style="display:none"><div class="modal-section-title">📝 Última Movimentação</div><div id="modalMov"></div></div>
@@ -660,6 +678,19 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="confirm-actions">
 <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
 <button class="btn btn-danger" id="confirmBtn" onclick="confirmRemove()">Remover</button>
+</div>
+</div>
+</div>
+
+<!-- ENRICH CONFIRM DIALOG -->
+<div id="enrichConfirmOverlay" class="confirm-overlay" onclick="closeEnrichConfirm()">
+<div class="confirm-dialog" onclick="event.stopPropagation()">
+<div class="confirm-icon">🔍</div>
+<div class="confirm-title">Enriquecer Dados?</div>
+<div class="confirm-text">Esta ação consumirá <strong>1 crédito</strong> da sua conta.<br><br><span style="font-size:11px;color:var(--text-muted)">Você receberá dados detalhados: contatos, endereço, renda estimada, empresas e veículos.</span></div>
+<div class="confirm-actions">
+<button class="btn btn-ghost" onclick="closeEnrichConfirm()">Cancelar</button>
+<button class="btn btn-primary" id="enrichConfirmBtn" onclick="confirmEnrich()">Usar 1 Crédito</button>
 </div>
 </div>
 </div>
@@ -905,6 +936,70 @@ const doSearch=async(page=1)=>{
   }
   document.getElementById('searchBtn').disabled=false;
 };
+  const goToPage=page=>{if(page<1||page>totalPages)return;doSearch(page)};
+
+const doSearch=async(page=1)=>{
+  currentLimit=parseInt(document.getElementById('searchLimit').value);
+  const offset=(page-1)*currentLimit;
+  const txt=document.getElementById('searchInput').value.trim();
+  const tribunal=document.getElementById('filterTribunal').value;
+  const valorMin=document.getElementById('filterValorMin').value;
+  
+  document.getElementById('searchLoading').style.display='flex';
+  document.getElementById('searchEmpty').style.display='none';
+  document.getElementById('searchError').style.display='none';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchResultsHeader').style.display='none';
+  document.getElementById('paginationContainer').style.display='none';
+  document.getElementById('searchBtn').disabled=true;
+  
+  try{
+    let ep='/processos?limit='+currentLimit+'&offset='+offset;
+    if(tribunal)ep+='&tribunal='+tribunal;
+    if(valorMin)ep+='&valor_min='+valorMin;
+    // nome_part busca em todas as partes (autor, réu, terceiros, etc)
+    if(txt)ep+='&nome_part='+encodeURIComponent(txt);
+    
+    const res=await apiCall(ep);
+    let lista=res.data||res.items||res.processos||(Array.isArray(res)?res:[]);
+    const total=res.total_count||lista.length;
+    
+    lista.sort((a,b)=>(b.valor_causa||0)-(a.valor_causa||0));
+    lastSearchResults=lista;
+    totalProcessos=total;
+    totalPages=Math.ceil(total/currentLimit)||1;
+    currentPage=page;
+    
+    document.getElementById('statTotal').textContent=total.toLocaleString('pt-BR');
+    if(lista.length>0){
+      const mv=Math.max(...lista.map(p=>p.valor_causa||0));
+      if(mv>maiorValor){maiorValor=mv;document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
+    }
+    
+    document.getElementById('searchLoading').style.display='none';
+    
+    if(lista.length===0){
+      document.getElementById('searchEmpty').innerHTML='<div class="empty-icon">🔍</div><div class="empty-title">Nenhum resultado encontrado</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Tente ajustar os filtros</div>';
+      document.getElementById('searchEmpty').style.display='block';
+    }else{
+      document.getElementById('searchResultsHeader').style.display='flex';
+      const start=offset+1,end=Math.min(offset+lista.length,total);
+      document.getElementById('searchResultsCount').textContent='Exibindo '+start+'–'+end+' de '+total.toLocaleString('pt-BR')+' processos';
+      document.getElementById('searchResults').innerHTML=lista.map(renderProcessoCard).join('');
+      document.getElementById('paginationContainer').style.display='flex';
+      document.getElementById('pageInfo').textContent='Página '+currentPage+' de '+totalPages;
+      document.getElementById('btnPrev').disabled=currentPage<=1;
+      document.getElementById('btnNext').disabled=currentPage>=totalPages;
+      // Registrar atividade
+      if(page===1){consultasCount++;addActivity('Consulta: '+(txt||'todos'),'');updateProfileCard()}
+    }
+  }catch(e){
+    document.getElementById('searchLoading').style.display='none';
+    document.getElementById('searchError').style.display='block';
+    document.getElementById('searchErrorText').textContent=e.message;
+  }
+  document.getElementById('searchBtn').disabled=false;
+};
 
 const renderProcessoCard=p=>{
   const num=p.processo_numero||'',cnj=formatCNJ(num),trib=p.tribunal||'-',valor=p.valor_causa,status=p.status_processamento||'';
@@ -1002,13 +1097,28 @@ const renderPartes=(partes,autorStr,reuStr)=>{
 };
 
 const renderModalEnrich=p=>{
+  const section=document.getElementById('modalEnrichSection');
+  const badge=document.getElementById('modalEnrichBadge');
+  const prompt=document.getElementById('modalEnrichPrompt');
+  const loading=document.getElementById('modalEnrichLoading');
+  const data=document.getElementById('modalEnrichData');
+  
+  // Mostrar a seção
+  section.style.display='block';
+  
+  // Reset state - SEMPRE mostrar o botão primeiro
+  prompt.style.display='block';
+  loading.style.display='none';
+  data.style.display='none';
+  badge.className='enrich-status';
+  badge.textContent='';
+};
+
+const showEnrichData=p=>{
   const ed=p.enrichment_data;
-  if(!ed){document.getElementById('modalEnrichSection').style.display='none';return}
+  if(!ed)return;
   
-  document.getElementById('modalEnrichSection').style.display='block';
-  document.getElementById('modalEnrichBadge').className='enrich-status available';
-  document.getElementById('modalEnrichBadge').textContent='✓ Disponível';
-  
+  const data=document.getElementById('modalEnrichData');
   let html='<div class="modal-enrich"><div class="modal-enrich-header"><span class="modal-enrich-title">Dados do Autor</span>'
     +(p.enrichment_summary?.updated_at?'<span class="modal-enrich-updated">Atualizado: '+formatDate(p.enrichment_summary.updated_at)+'</span>':'')
     +'</div><div class="modal-enrich-grid">';
@@ -1081,7 +1191,169 @@ const renderModalEnrich=p=>{
   }
   
   html+='</div></div>';
-  document.getElementById('modalEnrichContent').innerHTML=html;
+  data.innerHTML=html;
+  data.style.display='block';
+};
+
+// ENRIQUECIMENTO
+const askEnrich=()=>{
+  if(!currentProcesso)return;
+  document.getElementById('enrichConfirmOverlay').classList.add('active');
+};
+
+const closeEnrichConfirm=()=>{
+  document.getElementById('enrichConfirmOverlay').classList.remove('active');
+};
+
+const confirmEnrich=async()=>{
+  if(!currentProcesso)return;
+  const cnj=currentProcesso.processo_numero;
+  const btn=document.getElementById('enrichConfirmBtn');
+  
+  btn.disabled=true;
+  btn.textContent='Preparando...';
+  
+  try{
+    // 1. Buscar partes detalhadas
+    let partes=[];
+    try{
+      const partesResp=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
+      partes=partesResp.data||partesResp||[];
+    }catch(e){
+      console.log('Partes não disponíveis, usando fallback');
+    }
+    
+    // 2. Montar array de processos com todas as partes
+    const processos=[];
+    
+    if(partes.length>0){
+      // Usar dados das partes
+      partes.forEach(p=>{
+        processos.push({
+          processo_id:cnj,
+          cnj:cnj,
+          pessoa:{
+            nome:p.nome||p.nomeRazao||'',
+            nomeRazao:p.nome||p.nomeRazao||'',
+            documento:p.documento||p.cpf||p.cnpj||'',
+            cpf:p.cpf||p.documento||'',
+            tipoPessoa:p.tipo_pessoa||p.tipoPessoa||(p.papel?.includes('AUTOR')?'F':'J'),
+            cidade:p.cidade||'',
+            uf:p.uf||''
+          }
+        });
+      });
+    }else{
+      // Fallback: usar autor e réu do processo
+      if(currentProcesso.autor){
+        processos.push({
+          processo_id:cnj,
+          cnj:cnj,
+          pessoa:{
+            nome:currentProcesso.autor,
+            nomeRazao:currentProcesso.autor,
+            tipoPessoa:'F'
+          }
+        });
+      }
+      if(currentProcesso.reu){
+        processos.push({
+          processo_id:cnj,
+          cnj:cnj,
+          pessoa:{
+            nome:currentProcesso.reu,
+            nomeRazao:currentProcesso.reu,
+            tipoPessoa:'J'
+          }
+        });
+      }
+    }
+    
+    if(processos.length===0){
+      showToast('Nenhuma parte encontrada para enriquecer',true);
+      btn.disabled=false;
+      btn.textContent='Usar 1 Crédito';
+      return;
+    }
+    
+    btn.textContent='Enviando...';
+    
+    // 3. Chamar endpoint de enriquecimento
+    const result=await apiCall('/enrichment/request',{
+      method:'POST',
+      body:JSON.stringify({processos:processos})
+    });
+    
+    closeEnrichConfirm();
+    
+    // 4. Mostrar loading na seção
+    document.getElementById('modalEnrichPrompt').style.display='none';
+    document.getElementById('modalEnrichLoading').style.display='flex';
+    document.getElementById('modalEnrichBadge').className='enrich-status pending';
+    document.getElementById('modalEnrichBadge').textContent='⏳ Processando';
+    
+    // 5. Se o resultado já veio com dados, mostrar
+    if(result.enrichment_data){
+      currentProcesso.enrichment_data=result.enrichment_data;
+      currentProcesso.enrichment_summary=result.enrichment_summary;
+      document.getElementById('modalEnrichLoading').style.display='none';
+      document.getElementById('modalEnrichBadge').className='enrich-status available';
+      document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
+      showEnrichData(currentProcesso);
+      showToast('Dados enriquecidos com sucesso!');
+    }else{
+      // 6. Polling para verificar quando os dados ficarem prontos
+      pollEnrichStatus(cnj);
+    }
+  }catch(e){
+    showToast('Erro: '+e.message,true);
+    closeEnrichConfirm();
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Usar 1 Crédito';
+  }
+};
+
+const pollEnrichStatus=async(cnj,attempts=0)=>{
+  if(attempts>=15){
+    document.getElementById('modalEnrichLoading').style.display='none';
+    document.getElementById('modalEnrichPrompt').style.display='block';
+    document.getElementById('modalEnrichBadge').className='enrich-status';
+    document.getElementById('modalEnrichBadge').textContent='';
+    showToast('Timeout ao aguardar enriquecimento. Tente novamente em alguns minutos.',true);
+    return;
+  }
+  
+  try{
+    const status=await apiCall('/enrichment/'+encodeURIComponent(cnj)+'/status');
+    
+    // Verificar diferentes formatos de resposta
+    const enrichData=status.enrichment_data||status.data||status.resultado;
+    const statusStr=(status.status||status.estado||'').toLowerCase();
+    
+    if((statusStr==='completed'||statusStr==='available'||statusStr==='concluido')&&enrichData){
+      currentProcesso.enrichment_data=enrichData;
+      currentProcesso.enrichment_summary=status.enrichment_summary||status.summary;
+      document.getElementById('modalEnrichLoading').style.display='none';
+      document.getElementById('modalEnrichBadge').className='enrich-status available';
+      document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
+      showEnrichData(currentProcesso);
+      showToast('Dados enriquecidos com sucesso!');
+    }else if(statusStr==='error'||statusStr==='erro'||statusStr==='failed'){
+      document.getElementById('modalEnrichLoading').style.display='none';
+      document.getElementById('modalEnrichPrompt').style.display='block';
+      document.getElementById('modalEnrichBadge').className='enrich-status';
+      document.getElementById('modalEnrichBadge').textContent='';
+      showToast('Erro no enriquecimento: '+(status.message||status.mensagem||'Tente novamente'),true);
+    }else{
+      // Ainda processando - tentar novamente em 3 segundos
+      document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Processando... ('+Math.round((attempts+1)*3)+'s)';
+      setTimeout(()=>pollEnrichStatus(cnj,attempts+1),3000);
+    }
+  }catch(e){
+    // Erro na chamada - tentar novamente
+    setTimeout(()=>pollEnrichStatus(cnj,attempts+1),3000);
+  }
 };
 
 const updateModalWatchBtn=cnj=>{
