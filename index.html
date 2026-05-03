@@ -473,7 +473,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.5.3</div>
+<div class="login-footer">v2.5.4</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -602,7 +602,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.5.3</span><span>•</span><span>Atualizado em Mai/2026</span></div>
+<div class="about-version"><span>Versão 2.5.4</span><span>•</span><span>Atualizado em Mai/2026</span></div>
 <a href="https://opportium.com.br" target="_blank" class="about-link">opportium.com.br ↗</a>
 </div>
 </div>
@@ -921,46 +921,18 @@ const initApp=async()=>{
   updateProfileCard();
   if(canUseWatchlist())loadWatchlist();
   try{
-    // Buscar total de processos na base
-    const d=await apiCall('/processos?limit=1');
-    console.log('Processos response:', d);
-    const total=d.total_count||d.total||d.count||(d.data?d.data.length:0);
-    if(total){
-      totalProcessos=total;
-      document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR');
+    const d=await apiCall('/processos?limit=100');
+    const lista=d.data||d.items||d.processos||[];
+    if(d.total_count){totalProcessos=d.total_count;document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR')}
+    if(lista.length>0){
+      const valores=lista.map(p=>p.valor_causa||0).filter(v=>v>0);
+      if(valores.length>0){maiorValor=Math.max(...valores);document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
     }
-    
-    // Buscar maior valor (com lista maior para ter mais chance de pegar o maior)
-    const dMax=await apiCall('/processos?limit=100');
-    const listaMax=dMax.data||dMax.items||dMax.processos||(Array.isArray(dMax)?dMax:[]);
-    console.log('Lista para maior valor:', listaMax.length, 'processos');
-    if(listaMax.length>0){
-      const valores=listaMax.map(p=>p.valor_causa||0).filter(v=>v>0);
-      console.log('Valores encontrados:', valores.length);
-      if(valores.length>0){
-        maiorValor=Math.max(...valores);
-        console.log('Maior valor:', maiorValor);
-        document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor);
-      }
-    }
-    
-    // Buscar total TJSP
-    try{
-      const tjsp=await apiCall('/processos?limit=1&tribunal=TJSP');
-      console.log('TJSP response:', tjsp);
-      const totalTJSP=tjsp.total_count||tjsp.total||tjsp.count||0;
-      if(totalTJSP)document.getElementById('statTJSP').textContent=totalTJSP.toLocaleString('pt-BR');
-    }catch(e){console.log('TJSP error:',e)}
-    
-    // Buscar total TJGO
-    try{
-      const tjgo=await apiCall('/processos?limit=1&tribunal=TJGO');
-      console.log('TJGO response:', tjgo);
-      const totalTJGO=tjgo.total_count||tjgo.total||tjgo.count||0;
-      if(totalTJGO)document.getElementById('statTJGO').textContent=totalTJGO.toLocaleString('pt-BR');
-    }catch(e){console.log('TJGO error:',e)}
-    
-  }catch(e){console.log('Init error:',e)}
+    // TJSP
+    try{const t=await apiCall('/processos?limit=1&tribunal=TJSP');if(t.total_count)document.getElementById('statTJSP').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
+    // TJGO
+    try{const t=await apiCall('/processos?limit=1&tribunal=TJGO');if(t.total_count)document.getElementById('statTJGO').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
+  }catch(e){}
 };
 
 // NAVIGATION
@@ -1376,7 +1348,7 @@ const confirmEnrich=async()=>{
       const partesResp=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
       partes=partesResp.data||partesResp||[];
     }catch(e){
-      console.log('Partes não disponíveis, usando fallback');
+      // Partes não disponíveis, usar fallback
     }
     
     // 2. Montar array de processos com todas as partes
@@ -1563,7 +1535,6 @@ const loadWatchlist=async()=>{
           const det=await apiCall('/processos/'+encodeURIComponent(cnj));
           return {...w,...det,processo_numero:cnj,created_at:w.created_at||w.adicionado_em};
         }catch(e){
-          console.log('Processo não encontrado na base:',cnj);
           return {...w,processo_numero:cnj,created_at:w.created_at||w.adicionado_em};
         }
       });
