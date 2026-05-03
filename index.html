@@ -115,7 +115,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .profile-stat-value{font-size:16px;font-weight:700}
 .profile-stat-label{font-size:9px;opacity:0.7;text-transform:uppercase;margin-top:2px}
 .profile-actions{display:flex;gap:8px}
-.profile-btn{flex:1;padding:9px;border-radius:6px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;border:none;transition:all .15s}
+.profile-btn{flex:1;padding:9px 12px;border-radius:6px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.profile-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
 .profile-btn-light{background:rgba(255,255,255,0.15);color:#fff}
 .profile-btn-light:hover{background:rgba(255,255,255,0.25)}
 .profile-btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff}
@@ -181,12 +182,23 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .page-subtitle{font-size:12px;color:var(--text-muted)}
 
 /* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
-@media(max-width:700px){.stats-grid{grid-template-columns:1fr}}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.stats-grid.stats-grid-3{grid-template-columns:repeat(3,1fr)}
+.stats-grid.stats-grid-tribunais{grid-template-columns:repeat(2,1fr);margin-bottom:20px}
+@media(max-width:800px){.stats-grid,.stats-grid.stats-grid-3{grid-template-columns:1fr 1fr}.stats-grid.stats-grid-tribunais{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.stats-grid,.stats-grid.stats-grid-3,.stats-grid.stats-grid-tribunais{grid-template-columns:1fr}}
 .stat-card{background:#fff;border-radius:10px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);border-left:4px solid var(--azul-petroleo);transition:all .15s}
 .stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
 .stat-card.accent-orange{border-left-color:var(--laranja)}
+.stat-card.accent-dark{border-left-color:var(--grafite)}
 .stat-card.accent-green{border-left-color:var(--success)}
+.stat-card-tribunal{border-left:none;border-radius:12px;padding:24px;text-align:center;position:relative;overflow:hidden}
+.stat-card-tribunal.tjsp{background:linear-gradient(135deg,#e0f2f1 0%,#b2dfdb 100%);border:2px solid var(--azul-petroleo)}
+.stat-card-tribunal.tjgo{background:linear-gradient(135deg,#fff3e0 0%,#ffe0b2 100%);border:2px solid var(--laranja)}
+.stat-card-tribunal .stat-value{font-size:32px}
+.stat-card-tribunal .stat-meta{margin-top:8px}
+.stat-tribunal-badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;margin-bottom:10px;background:var(--azul-petroleo);color:white;letter-spacing:.05em}
+.stat-tribunal-badge.tjgo{background:var(--laranja)}
 .stat-label{font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;letter-spacing:.03em}
 .stat-value{font-size:26px;font-weight:700;color:var(--grafite)}
 .stat-meta{font-size:10px;color:var(--text-muted);margin-top:6px}
@@ -380,12 +392,18 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .whatsapp-badge{font-size:9px;background:#25D366;color:#fff;padding:2px 6px;border-radius:4px;font-weight:600}
 
 /* PARTES */
-.parte-card{background:var(--off-white);border-radius:8px;padding:14px;margin-bottom:10px}
-.parte-papel{font-size:9px;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
+.parte-card{background:var(--off-white);border-radius:8px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.parte-content{flex:1}
+.parte-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.parte-papel{font-size:9px;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block}
 .parte-papel.autor{color:var(--azul-petroleo);background:var(--info-bg)}
 .parte-papel.reu{color:var(--laranja);background:rgba(255,64,16,0.1)}
 .parte-nome{font-size:13px;font-weight:600;color:var(--grafite)}
 .parte-adv{font-size:11px;color:var(--text-muted);margin-top:8px}
+.parte-search-btn{width:28px;height:28px;border:1.5px solid var(--azul-petroleo);background:white;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0}
+.parte-search-btn:hover{background:var(--azul-petroleo)}
+.parte-search-btn:hover svg{stroke:white}
+.parte-search-btn svg{width:12px;height:12px;stroke:var(--azul-petroleo);fill:none;stroke-width:2.5}
 
 /* EXPORT */
 .export-option{display:flex;align-items:center;gap:14px;padding:18px;background:#fff;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:12px;transition:all .12s}
@@ -455,7 +473,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.5.0</div>
+<div class="login-footer">v2.5.3</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -504,10 +522,14 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 
 <!-- SEÇÃO 1: Processos e Perfil -->
 <div class="home-section">
-<div class="stats-grid">
-<div class="stat-card" id="statCardWatched"><div class="stat-label">Processos Monitorados</div><div class="stat-value" id="statWatched">0</div><div class="stat-meta" id="statWatchedMeta">Na sua watchlist</div></div>
+<div class="stats-grid stats-grid-3">
+<div class="stat-card"><div class="stat-label">Processos Monitorados</div><div class="stat-value" id="statWatched">0</div><div class="stat-meta" id="statWatchedMeta">Na sua watchlist</div></div>
 <div class="stat-card accent-orange"><div class="stat-label">Maior Valor em Causa</div><div class="stat-value" id="statMaiorValor">-</div><div class="stat-meta">Na base de dados</div></div>
-<div class="stat-card accent-green"><div class="stat-label">Total na Base</div><div class="stat-value" id="statTotal">-</div><div class="stat-meta">Processos disponíveis</div></div>
+<div class="stat-card accent-dark"><div class="stat-label">Total na Base</div><div class="stat-value" id="statTotal">-</div><div class="stat-meta">Processos disponíveis</div></div>
+</div>
+<div class="stats-grid stats-grid-tribunais">
+<div class="stat-card stat-card-tribunal tjsp"><div class="stat-tribunal-badge">TJSP</div><div class="stat-value" id="statTJSP">-</div><div class="stat-meta">Processos no tribunal</div></div>
+<div class="stat-card stat-card-tribunal tjgo"><div class="stat-tribunal-badge tjgo">TJGO</div><div class="stat-value" id="statTJGO">-</div><div class="stat-meta">Processos no tribunal</div></div>
 </div>
 <div class="home-grid">
 <div class="home-col-left">
@@ -534,8 +556,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="profile-stat"><div class="profile-stat-value" id="profileConsultas">0</div><div class="profile-stat-label">Consultas</div></div>
 </div>
 <div class="profile-actions">
-<button class="profile-btn profile-btn-light" onclick="openUserSettings()">⚙️ Configurações</button>
-<button class="profile-btn profile-btn-outline" onclick="showPage('watchlist',document.querySelector('[data-page=watchlist]'))">👁 Watchlist</button>
+<button class="profile-btn profile-btn-light" onclick="openUserSettings()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Configurações</button>
+<button class="profile-btn profile-btn-outline" onclick="showPage('watchlist',document.querySelector('[data-page=watchlist]'))"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Watchlist</button>
 </div>
 </div>
 </div>
@@ -580,7 +602,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.5.0</span><span>•</span><span>Atualizado em Abr/2026</span></div>
+<div class="about-version"><span>Versão 2.5.3</span><span>•</span><span>Atualizado em Mai/2026</span></div>
 <a href="https://opportium.com.br" target="_blank" class="about-link">opportium.com.br ↗</a>
 </div>
 </div>
@@ -899,10 +921,45 @@ const initApp=async()=>{
   updateProfileCard();
   if(canUseWatchlist())loadWatchlist();
   try{
-    const d=await apiCall('/processos?limit=100');
-    const lista=d.data||d.items||d.processos||[];
-    if(d.total_count){totalProcessos=d.total_count;document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR')}
-    if(lista.length>0){maiorValor=Math.max(...lista.map(p=>p.valor_causa||0));document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
+    // Buscar total de processos na base
+    const d=await apiCall('/processos?limit=1');
+    console.log('Processos response:', d);
+    const total=d.total_count||d.total||d.count||(d.data?d.data.length:0);
+    if(total){
+      totalProcessos=total;
+      document.getElementById('statTotal').textContent=totalProcessos.toLocaleString('pt-BR');
+    }
+    
+    // Buscar maior valor (com lista maior para ter mais chance de pegar o maior)
+    const dMax=await apiCall('/processos?limit=100');
+    const listaMax=dMax.data||dMax.items||dMax.processos||(Array.isArray(dMax)?dMax:[]);
+    console.log('Lista para maior valor:', listaMax.length, 'processos');
+    if(listaMax.length>0){
+      const valores=listaMax.map(p=>p.valor_causa||0).filter(v=>v>0);
+      console.log('Valores encontrados:', valores.length);
+      if(valores.length>0){
+        maiorValor=Math.max(...valores);
+        console.log('Maior valor:', maiorValor);
+        document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor);
+      }
+    }
+    
+    // Buscar total TJSP
+    try{
+      const tjsp=await apiCall('/processos?limit=1&tribunal=TJSP');
+      console.log('TJSP response:', tjsp);
+      const totalTJSP=tjsp.total_count||tjsp.total||tjsp.count||0;
+      if(totalTJSP)document.getElementById('statTJSP').textContent=totalTJSP.toLocaleString('pt-BR');
+    }catch(e){console.log('TJSP error:',e)}
+    
+    // Buscar total TJGO
+    try{
+      const tjgo=await apiCall('/processos?limit=1&tribunal=TJGO');
+      console.log('TJGO response:', tjgo);
+      const totalTJGO=tjgo.total_count||tjgo.total||tjgo.count||0;
+      if(totalTJGO)document.getElementById('statTJGO').textContent=totalTJGO.toLocaleString('pt-BR');
+    }catch(e){console.log('TJGO error:',e)}
+    
   }catch(e){console.log('Init error:',e)}
 };
 
@@ -1166,19 +1223,33 @@ const openModal=async num=>{
 
 const renderPartes=(partes,autorStr,reuStr)=>{
   const c=document.getElementById('modalPartes');
+  
+  const searchBtn=(nome)=>{
+    if(!nome||nome==='-')return '';
+    const escaped=nome.replace(/'/g,"\\'");
+    return '<button class="parte-search-btn" onclick="event.stopPropagation();searchParte(\''+escaped+'\')" title="Buscar esta parte na base"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>';
+  };
+  
   if(partes&&partes.length>0){
     c.innerHTML=partes.map(p=>{
       const papel=(p.papel||'PARTE').toUpperCase(),isA=papel.includes('AUTOR')||papel.includes('REQUERENTE')||papel.includes('EXEQUENTE');
       const advs=p.representantes||[];
       let ah='';if(advs.length>0)ah='<div class="parte-adv">Advogado(s): '+advs.map(a=>{let o='';if(a.numero_oab&&a.uf_oab)o=' (OAB/'+a.uf_oab+' '+a.numero_oab+')';return a.nome+o}).join(', ')+'</div>';
-      return '<div class="parte-card"><span class="parte-papel '+(isA?'autor':'reu')+'">'+papel+'</span><div class="parte-nome">'+(p.nome||'-')+'</div>'+ah+'</div>';
+      return '<div class="parte-card"><div class="parte-content"><div class="parte-header"><span class="parte-papel '+(isA?'autor':'reu')+'">'+papel+'</span></div><div class="parte-nome">'+(p.nome||'-')+'</div>'+ah+'</div>'+searchBtn(p.nome)+'</div>';
     }).join('');
     return;
   }
   let h='';
-  if(autorStr)h+='<div class="parte-card"><span class="parte-papel autor">AUTOR</span><div class="parte-nome">'+autorStr+'</div></div>';
-  if(reuStr)h+='<div class="parte-card"><span class="parte-papel reu">RÉU</span><div class="parte-nome">'+reuStr+'</div></div>';
+  if(autorStr)h+='<div class="parte-card"><div class="parte-content"><div class="parte-header"><span class="parte-papel autor">AUTOR</span></div><div class="parte-nome">'+autorStr+'</div></div>'+searchBtn(autorStr)+'</div>';
+  if(reuStr)h+='<div class="parte-card"><div class="parte-content"><div class="parte-header"><span class="parte-papel reu">RÉU</span></div><div class="parte-nome">'+reuStr+'</div></div>'+searchBtn(reuStr)+'</div>';
   c.innerHTML=h||'<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px">Nenhuma parte encontrada</div>';
+};
+
+const searchParte=(nome)=>{
+  closeModal();
+  document.getElementById('searchInput').value=nome;
+  showPage('consultar',document.querySelector('[data-page="consultar"]'));
+  doSearch(1);
 };
 
 const renderModalEnrich=p=>{
