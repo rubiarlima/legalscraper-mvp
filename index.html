@@ -1470,20 +1470,27 @@ const closeEnrichConfirm=()=>{
 
 const confirmEnrich=async()=>{
   if(!currentProcesso)return;
-  const cnj=currentProcesso.processo_numero;
+  const cnjRaw=currentProcesso.processo_numero;
+  // Sempre enviar CNJ no formato canônico NNNNNNN-DD.AAAA.J.TT.OOOO
+  const cnj=formatCNJ(cnjRaw);
   const btn=document.getElementById('enrichConfirmBtn');
   
   btn.disabled=true;
   btn.textContent='Preparando...';
   
   try{
-    // 1. Buscar partes detalhadas
+    // 1. Buscar partes detalhadas (tenta formato formatado, fallback para raw)
     let partes=[];
     try{
       const partesResp=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
       partes=partesResp.data||partesResp||[];
     }catch(e){
-      // Partes não disponíveis, usar fallback
+      try{
+        const partesResp2=await apiCall('/processos/'+encodeURIComponent(cnjRaw)+'/partes');
+        partes=partesResp2.data||partesResp2||[];
+      }catch(e2){
+        // Partes não disponíveis, usar fallback
+      }
     }
     
     // 2. Montar array de processos com todas as partes
@@ -1591,8 +1598,8 @@ const confirmEnrich=async()=>{
       showEnrichData(currentProcesso);
       showToast('Dados enriquecidos com sucesso!');
     }else{
-      // 6. Polling para verificar quando os dados ficarem prontos
-      pollEnrichStatus(cnj);
+    // 6. Polling para verificar quando os dados ficarem prontos
+      pollEnrichStatus(cnj,cnjRaw);
     }
   }catch(e){
     showToast('Erro: '+e.message,true);
@@ -1603,7 +1610,7 @@ const confirmEnrich=async()=>{
   }
 };
 
-const pollEnrichStatus=async(cnj,attempts=0)=>{
+const pollEnrichStatus=async(cnj,cnjRaw,attempts=0)=>{
   if(attempts>=15){
     document.getElementById('modalEnrichLoading').style.display='none';
     document.getElementById('modalEnrichPrompt').style.display='block';
@@ -1614,7 +1621,15 @@ const pollEnrichStatus=async(cnj,attempts=0)=>{
   }
   
   try{
-    const status=await apiCall('/enrichment/'+encodeURIComponent(cnj)+'/status');
+    let status;
+    try{
+      status=await apiCall('/enrichment/'+encodeURIComponent(cnj)+'/status');
+    }catch(e){
+      // Fallback: tentar com CNJ raw se formatado falhar
+      if(cnjRaw&&cnjRaw!==cnj){
+        status=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
+      }else{throw e;}
+    }
     
     // Verificar diferentes formatos de resposta
     const enrichData=status.enrichment_data||status.data||status.resultado;
@@ -1637,11 +1652,11 @@ const pollEnrichStatus=async(cnj,attempts=0)=>{
     }else{
       // Ainda processando - tentar novamente em 3 segundos
       document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Processando... ('+Math.round((attempts+1)*3)+'s)';
-      setTimeout(()=>pollEnrichStatus(cnj,attempts+1),3000);
+      setTimeout(()=>pollEnrichStatus(cnj,cnjRaw,attempts+1),3000);
     }
   }catch(e){
     // Erro na chamada - tentar novamente
-    setTimeout(()=>pollEnrichStatus(cnj,attempts+1),3000);
+    setTimeout(()=>pollEnrichStatus(cnj,cnjRaw,attempts+1),3000);
   }
 };
 
