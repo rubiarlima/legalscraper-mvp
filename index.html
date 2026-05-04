@@ -1288,6 +1288,9 @@ const renderProspCard=p=>{
 
 // MODAL
 const openModal=async num=>{
+  // Normaliza: aceita CNJ formatado ou raw — API espera só dígitos
+  const numRaw=String(num).replace(/\D/g,'');
+  const numApi=numRaw||num;
   document.getElementById('modalLoading').style.display='flex';
   document.getElementById('modalContent').style.display='none';
   document.getElementById('modalEnrichSection').style.display='none';
@@ -1299,7 +1302,14 @@ const openModal=async num=>{
   updateModalWatchBtn(num);
   
   try{
-    const p=await apiCall('/processos/'+encodeURIComponent(num));
+    let p;
+    try{
+      p=await apiCall('/processos/'+encodeURIComponent(numApi));
+    }catch(e){
+      // Fallback: tentar com o num original caso raw falhe
+      if(numApi!==num)p=await apiCall('/processos/'+encodeURIComponent(num));
+      else throw e;
+    }
     currentProcesso=p;
     document.getElementById('modalTribunal').className='tribunal-badge '+getTribunalClass(p.tribunal);
     document.getElementById('modalTribunal').textContent=p.tribunal||'-';
@@ -1364,17 +1374,38 @@ const renderModalEnrich=p=>{
   const badge=document.getElementById('modalEnrichBadge');
   const prompt=document.getElementById('modalEnrichPrompt');
   const loading=document.getElementById('modalEnrichLoading');
-  const data=document.getElementById('modalEnrichData');
-  
-  // Mostrar a seção
+  const dataEl=document.getElementById('modalEnrichData');
   section.style.display='block';
-  
-  // Reset state - SEMPRE mostrar o botão primeiro
-  prompt.style.display='block';
+
+  const summary=p.enrichment_summary||null;
+  const statusStr=(summary?.status||'').toLowerCase();
+
+  // Reset
+  prompt.style.display='none';
   loading.style.display='none';
-  data.style.display='none';
+  dataEl.style.display='none';
   badge.className='enrich-status';
   badge.textContent='';
+
+  if(statusStr==='available'&&p.enrichment_data){
+    badge.className='enrich-status available';
+    badge.textContent='✓ Enriquecido';
+    showEnrichData(p);
+  }else if(statusStr==='warning'){
+    badge.className='enrich-status unavailable';
+    badge.textContent='Sem dados';
+    dataEl.innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span><span class="enrich-unavailable-text">Nenhum dado encontrado para esta parte na base da DATE Solutions.</span></div>';
+    dataEl.style.display='block';
+  }else if(statusStr==='processing'){
+    badge.className='enrich-status pending';
+    badge.textContent='⏳ Processando';
+    loading.style.display='flex';
+    const cnjRaw=String(p.processo_numero||'').replace(/\D/g,'');
+    pollEnrichStatus(cnjRaw);
+  }else{
+    // Sem dados ainda — mostrar botão
+    prompt.style.display='block';
+  }
 };
 
 const showEnrichData=p=>{
@@ -1470,23 +1501,28 @@ const closeEnrichConfirm=()=>{
 
 const confirmEnrich=async()=>{
   if(!currentProcesso)return;
-  const cnjRaw=currentProcesso.processo_numero;
-  // Sempre enviar CNJ no formato canônico NNNNNNN-DD.AAAA.J.TT.OOOO
-  const cnj=formatCNJ(cnjRaw);
+  const cnjRaw=String(currentProcesso.processo_numero||'').replace(/\D/g,'');
+  const cnj=formatCNJ(cnjRaw); // apenas para display
+  // Backend espera processo_id como inteiro (PK do banco)
+  const processoIdInt=currentProcesso.id||currentProcesso.processo_id||null;
+  if(!processoIdInt){
+    showToast('ID do processo não disponível para enriquecimento',true);
+    return;
+  }
   const btn=document.getElementById('enrichConfirmBtn');
   
   btn.disabled=true;
   btn.textContent='Preparando...';
   
   try{
-    // 1. Buscar partes detalhadas (tenta formato formatado, fallback para raw)
+    // 1. Buscar partes detalhadas (tenta raw first)
     let partes=[];
     try{
-      const partesResp=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
+      const partesResp=await apiCall('/processos/'+encodeURIComponent(cnjRaw)+'/partes');
       partes=partesResp.data||partesResp||[];
     }catch(e){
       try{
-        const partesResp2=await apiCall('/processos/'+encodeURIComponent(cnjRaw)+'/partes');
+        const partesResp2=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
         partes=partesResp2.data||partesResp2||[];
       }catch(e2){
         // Partes não disponíveis, usar fallback
@@ -1510,16 +1546,12 @@ const confirmEnrich=async()=>{
       // Usar dados das partes
       partes.forEach(p=>{
         processos.push({
-          processo_id:cnj,
-          cnj:cnj,
+          processo_id:processoIdInt,
+          cnj:cnjRaw,
           pessoa:{
             nome:p.nome||p.nomeRazao||'',
-            nomeRazao:p.nome||p.nomeRazao||'',
             documento:p.documento||p.cpf||p.cnpj||'',
-            cpf:p.cpf||p.documento||'',
-            tipoPessoa:normTipo(p.tipo_pessoa||p.tipoPessoa,p.papel||p.tipo||''),
-            cidade:p.cidade||'',
-            uf:p.uf||''
+            tipoPessoa:normTipo(p.tipo_pessoa||p.tipoPessoa,p.papel||p.tipo||'')
           }
         });
       });
@@ -1527,22 +1559,22 @@ const confirmEnrich=async()=>{
       // Fallback: usar autor e réu do processo
       if(currentProcesso.autor){
         processos.push({
-          processo_id:cnj,
-          cnj:cnj,
+          processo_id:processoIdInt,
+          cnj:cnjRaw,
           pessoa:{
             nome:currentProcesso.autor,
-            nomeRazao:currentProcesso.autor,
+            documento:'',
             tipoPessoa:'F'
           }
         });
       }
       if(currentProcesso.reu){
         processos.push({
-          processo_id:cnj,
-          cnj:cnj,
+          processo_id:processoIdInt,
+          cnj:cnjRaw,
           pessoa:{
             nome:currentProcesso.reu,
-            nomeRazao:currentProcesso.reu,
+            documento:'',
             tipoPessoa:'J'
           }
         });
@@ -1598,8 +1630,8 @@ const confirmEnrich=async()=>{
       showEnrichData(currentProcesso);
       showToast('Dados enriquecidos com sucesso!');
     }else{
-    // 6. Polling para verificar quando os dados ficarem prontos
-      pollEnrichStatus(cnj,cnjRaw);
+      // 6. Polling (API usa CNJ raw sem formatação)
+      pollEnrichStatus(cnjRaw);
     }
   }catch(e){
     showToast('Erro: '+e.message,true);
@@ -1610,39 +1642,38 @@ const confirmEnrich=async()=>{
   }
 };
 
-const pollEnrichStatus=async(cnj,cnjRaw,attempts=0)=>{
-  if(attempts>=15){
+const pollEnrichStatus=async(cnjRaw,attempts=0)=>{
+  if(attempts>=20){
     document.getElementById('modalEnrichLoading').style.display='none';
     document.getElementById('modalEnrichPrompt').style.display='block';
     document.getElementById('modalEnrichBadge').className='enrich-status';
     document.getElementById('modalEnrichBadge').textContent='';
-    showToast('Timeout ao aguardar enriquecimento. Tente novamente em alguns minutos.',true);
+    showToast('Timeout aguardando enriquecimento. Tente novamente.',true);
     return;
   }
-  
   try{
-    let status;
-    try{
-      status=await apiCall('/enrichment/'+encodeURIComponent(cnj)+'/status');
-    }catch(e){
-      // Fallback: tentar com CNJ raw se formatado falhar
-      if(cnjRaw&&cnjRaw!==cnj){
-        status=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
-      }else{throw e;}
-    }
-    
-    // Verificar diferentes formatos de resposta
-    const enrichData=status.enrichment_data||status.data||status.resultado;
+    const status=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
     const statusStr=(status.status||status.estado||'').toLowerCase();
-    
-    if((statusStr==='completed'||statusStr==='available'||statusStr==='concluido')&&enrichData){
+    const enrichData=status.enrichment_data||status.data||status.resultado;
+
+    if(statusStr==='available'&&enrichData){
+      // Sucesso com dados
       currentProcesso.enrichment_data=enrichData;
-      currentProcesso.enrichment_summary=status.enrichment_summary||status.summary;
+      currentProcesso.enrichment_summary=status.enrichment_summary||status.summary||{status:'available',updated_at:status.updated_at};
       document.getElementById('modalEnrichLoading').style.display='none';
       document.getElementById('modalEnrichBadge').className='enrich-status available';
       document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
       showEnrichData(currentProcesso);
       showToast('Dados enriquecidos com sucesso!');
+    }else if(statusStr==='warning'){
+      // Finalizado mas sem dados encontrados para esta pessoa
+      document.getElementById('modalEnrichLoading').style.display='none';
+      document.getElementById('modalEnrichPrompt').style.display='none';
+      document.getElementById('modalEnrichData').innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span><span class="enrich-unavailable-text">Nenhum dado encontrado para esta parte na base da DATE Solutions.</span></div>';
+      document.getElementById('modalEnrichData').style.display='block';
+      document.getElementById('modalEnrichBadge').className='enrich-status unavailable';
+      document.getElementById('modalEnrichBadge').textContent='Sem dados';
+      showToast('Enriquecimento concluído: sem dados disponíveis para esta parte.',false);
     }else if(statusStr==='error'||statusStr==='erro'||statusStr==='failed'){
       document.getElementById('modalEnrichLoading').style.display='none';
       document.getElementById('modalEnrichPrompt').style.display='block';
@@ -1650,13 +1681,13 @@ const pollEnrichStatus=async(cnj,cnjRaw,attempts=0)=>{
       document.getElementById('modalEnrichBadge').textContent='';
       showToast('Erro no enriquecimento: '+(status.message||status.mensagem||'Tente novamente'),true);
     }else{
-      // Ainda processando - tentar novamente em 3 segundos
-      document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Processando... ('+Math.round((attempts+1)*3)+'s)';
-      setTimeout(()=>pollEnrichStatus(cnj,cnjRaw,attempts+1),3000);
+      // processing - tentar novamente em 3s
+      const elapsed=Math.round((attempts+1)*3);
+      document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Consultando DATE Solutions... ('+elapsed+'s)';
+      setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
     }
   }catch(e){
-    // Erro na chamada - tentar novamente
-    setTimeout(()=>pollEnrichStatus(cnj,cnjRaw,attempts+1),3000);
+    setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
   }
 };
 
