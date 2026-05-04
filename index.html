@@ -442,11 +442,11 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .prosp-quick-btn:hover{border-color:var(--azul-petroleo);color:var(--azul-petroleo);background:var(--info-bg)}
 .prosp-filters{display:flex;flex-direction:column;gap:16px}
 .prosp-filter-row{display:grid;gap:14px;align-items:flex-end}
-.prosp-filter-row.row-4{grid-template-columns:1fr 1fr 1fr 1.4fr}
-.prosp-filter-row.row-2{grid-template-columns:1fr 1fr}
-.prosp-filter-row .filter-group select,.prosp-filter-row .filter-group input{height:36px;padding:0 10px;box-sizing:border-box;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s;line-height:36px;width:100%}
+.prosp-row-4{grid-template-columns:1fr 1fr 1fr 1.3fr}
+.prosp-row-2{grid-template-columns:1fr 1fr}
+.prosp-filter-row .filter-group input,.prosp-filter-row .filter-group select{height:36px;padding:0 10px;box-sizing:border-box;width:100%;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s}
+.prosp-filter-row .filter-group input:focus,.prosp-filter-row .filter-group select:focus{border-color:var(--azul-petroleo)}
 .prosp-filter-row .filter-group input[type="date"]{cursor:pointer}
-.prosp-filter-row .filter-group select:focus,.prosp-filter-row .filter-group input:focus{border-color:var(--azul-petroleo)}
 .prosp-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border-light)}
 .prosp-summary{margin-bottom:20px}
 .prosp-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
@@ -663,8 +663,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="filters-row">
 <div class="filter-group"><label>Tribunal</label><select id="filterTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
 <div class="filter-group"><label>Valor mínimo</label><input type="number" id="filterValorMin" placeholder="Ex: 10000" min="0"></div>
-<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="filterDataInicio" title="Filtrar processos distribuídos a partir desta data"></div>
-<div class="filter-group" style="align-self:flex-end"><button class="btn btn-ghost" onclick="clearFilters()"><svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Limpar</button></div>
+<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="filterDataInicio"></div>
+<div class="filter-group"><button class="btn btn-ghost" onclick="clearFilters()"><svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Limpar</button></div>
 </div>
 </div>
 <div id="searchLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Buscando processos...</div></div>
@@ -733,13 +733,13 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card">
 <div class="card-title">🎯 Filtros de Prospecção</div>
 <div class="prosp-filters">
-<div class="prosp-filter-row row-4">
+<div class="prosp-filter-row prosp-row-4">
 <div class="filter-group"><label>Valor mínimo (R$)</label><input type="number" id="prospValorMin" placeholder="10.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Valor máximo (R$)</label><input type="number" id="prospValorMax" placeholder="500.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
-<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="prospDataInicio" title="Filtrar processos distribuídos a partir desta data" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
+<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="prospDataInicio" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Tribunal</label><select id="prospTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
 </div>
-<div class="prosp-filter-row row-2">
+<div class="prosp-filter-row prosp-row-2">
 <div class="filter-group"><label>Nome da Parte (Autor)</label><input type="text" id="prospAutor" placeholder="Ex: João Silva, Maria..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Réu / Outro contém</label><input type="text" id="prospReu" placeholder="Banco, financeira..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 </div>
@@ -1010,7 +1010,6 @@ const clearFilters=()=>{
   document.getElementById('searchInput').value='';
   document.getElementById('filterTribunal').value='';
   document.getElementById('filterValorMin').value='';
-  document.getElementById('filterDataInicio').value='';
   document.getElementById('searchResults').innerHTML='';
   document.getElementById('searchResultsHeader').style.display='none';
   document.getElementById('paginationContainer').style.display='none';
@@ -1026,7 +1025,6 @@ const doSearch=async(page=1)=>{
   const txt=document.getElementById('searchInput').value.trim();
   const tribunal=document.getElementById('filterTribunal').value;
   const valorMin=document.getElementById('filterValorMin').value;
-  const dataInicio=document.getElementById('filterDataInicio').value;
   
   document.getElementById('searchLoading').style.display='flex';
   document.getElementById('searchEmpty').style.display='none';
@@ -1040,7 +1038,6 @@ const doSearch=async(page=1)=>{
     let ep='/processos?limit='+currentLimit+'&offset='+offset;
     if(tribunal)ep+='&tribunal='+tribunal;
     if(valorMin)ep+='&valor_min='+valorMin;
-    if(dataInicio)ep+='&data_inicio='+dataInicio;
     // nome_part busca em todas as partes (autor, réu, terceiros, etc)
     if(txt)ep+='&nome_part='+encodeURIComponent(txt);
     
@@ -1132,7 +1129,6 @@ const clearProspFilters=()=>{
   document.getElementById('prospValorMin').value='';
   document.getElementById('prospValorMax').value='';
   document.getElementById('prospTribunal').value='';
-  document.getElementById('prospDataInicio').value='';
   document.getElementById('prospAutor').value='';
   document.getElementById('prospReu').value='';
   document.getElementById('prospResults').innerHTML='';
@@ -1147,7 +1143,6 @@ const doProspSearch=async()=>{
   const valorMin=document.getElementById('prospValorMin').value;
   const valorMax=document.getElementById('prospValorMax').value;
   const tribunal=document.getElementById('prospTribunal').value;
-  const dataInicio=document.getElementById('prospDataInicio').value;
   const autorFilter=document.getElementById('prospAutor').value.trim().toLowerCase();
   const reuFilter=document.getElementById('prospReu').value.trim().toLowerCase();
   
@@ -1163,19 +1158,9 @@ const doProspSearch=async()=>{
     if(tribunal)ep+='&tribunal='+tribunal;
     if(valorMin)ep+='&valor_min='+valorMin;
     if(valorMax)ep+='&valor_max='+valorMax;
-    if(dataInicio)ep+='&data_inicio='+dataInicio;
     
     const res=await apiCall(ep);
     let lista=res.data||res.items||res.processos||(Array.isArray(res)?res:[]);
-    
-    // Filtro local por DATA (fallback caso API não suporte ainda)
-    if(dataInicio){
-      const dtMin=new Date(dataInicio);
-      lista=lista.filter(p=>{
-        const dtP=p.data_distribuicao||p.data_inicio||p.data_cadastro||'';
-        return dtP?new Date(dtP)>=dtMin:true;
-      });
-    }
     
     // Filtro local por AUTOR (campo autor especificamente)
     if(autorFilter){
@@ -1395,6 +1380,44 @@ const searchParte=(nome)=>{
 
 const ENRICHMENT_DATA_KEYS=['dados_pessoais','telefones','emails','enderecos','perfil_sociodemografico','participacoes_societarias','veiculos'];
 
+// Normaliza estrutura PLANA (DATE Solutions) → estrutura aninhada esperada pelo frontend
+const flattenToNested=(obj)=>{
+  if(!obj||typeof obj!=='object')return obj;
+  // Já está aninhado corretamente
+  if(obj.dados_pessoais)return obj;
+  // Detecta estrutura plana pelo nome/cpf no nível raiz
+  const hasFlat=obj.nome||obj.cpf||obj.documento||obj.cpf_parcial||obj.nomeRazao||obj.razao_social;
+  if(!hasFlat)return obj;
+  return {
+    ...obj, // mantém campos originais como fallback
+    dados_pessoais:{
+      nome:pickFirst(obj,['nome','nomeRazao','razao_social','nome_completo']),
+      documento:pickFirst(obj,['cpf','cnpj','documento','cpf_mascarado','cpf_parcial']),
+      data_nascimento:pickFirst(obj,['data_nascimento','nascimento','dt_nascimento']),
+      nome_mae:pickFirst(obj,['nome_mae','mae','nome_da_mae']),
+      idade:obj.idade
+    },
+    telefones:asArray(obj.telefones||obj.fones||obj.phones||
+      (obj.telefone_1?[{numero:obj.telefone_1,tipo:'Celular'}]:[]).concat(
+      obj.telefone_2?[{numero:obj.telefone_2,tipo:'Celular'}]:[]).concat(
+      obj.telefone_3?[{numero:obj.telefone_3,tipo:'Celular'}]:[])),
+    emails:asArray(obj.emails||obj.email||
+      (obj.email_1?[{endereco:obj.email_1}]:[]).concat(
+      obj.email_2?[{endereco:obj.email_2}]:[]).concat(
+      obj.email_3?[{endereco:obj.email_3}]:[])),
+    enderecos:asArray(obj.enderecos||obj.endereco||(obj.cidade_uf?[{cidade_uf:obj.cidade_uf}]:[])),
+    perfil_sociodemografico:obj.perfil_sociodemografico||obj.perfil||(obj.classe_social||obj.estimativa_renda?{
+      classe_social:obj.classe_social||obj.perfil_classe,
+      estimativa_renda:obj.estimativa_renda||obj.renda_presumida||obj.renda,
+      escolaridade:obj.escolaridade,
+      segmento:obj.segmento
+    }:null),
+    participacoes_societarias:asArray(obj.participacoes_societarias||obj.empresas||obj.socios||
+      (obj.empresa_principal?[{razao_social:obj.empresa_principal}]:[])),
+    veiculos:asArray(obj.veiculos||obj.veiculo||(obj.veiculo_principal?[{descricao:obj.veiculo_principal}]:[])),
+  };
+};
+
 const normalizeEnrichStatus=raw=>{
   const s=(raw||'').toString().toLowerCase();
   if(['available','success','done','completed','concluido','concluído'].includes(s))return'available';
@@ -1443,10 +1466,15 @@ const summaryToData=(summary,source={})=>{
 
 const normalizeEnrichmentData=(obj,source={})=>{
   if(!obj)return null;
-  if(obj.enrichment_data&&hasEnrichmentContent(obj.enrichment_data))return {...obj.enrichment_data,__party_name:pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']),__party_role:pickFirst(source,['papel','tipo','polo','qualificacao'])};
-  if(hasEnrichmentContent(obj)){
+  // Normaliza estrutura plana → aninhada antes de qualquer verificação
+  const normalized=flattenToNested(obj.enrichment_data?flattenToNested(obj.enrichment_data):obj);
+  if(normalized.enrichment_data){
+    const inner=flattenToNested(normalized.enrichment_data);
+    if(hasEnrichmentContent(inner))return{...inner,__party_name:pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']),__party_role:pickFirst(source,['papel','tipo','polo','qualificacao'])};
+  }
+  if(hasEnrichmentContent(normalized)){
     const data={};
-    ENRICHMENT_DATA_KEYS.forEach(k=>{if(obj[k])data[k]=obj[k]});
+    ENRICHMENT_DATA_KEYS.forEach(k=>{if(normalized[k])data[k]=normalized[k]});
     data.__party_name=pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']);
     data.__party_role=pickFirst(source,['papel','tipo','polo','qualificacao']);
     return data;
@@ -1537,34 +1565,41 @@ const showEnrichData=p=>{
     +'</div><div class="modal-enrich-grid">';
   
   // Dados pessoais
-  if(ed.dados_pessoais){
-    const dp=ed.dados_pessoais;
+  const dp=ed.dados_pessoais||{};
+  const dpNome=pickFirst(dp,['nome','nomeRazao','razao_social','nome_completo'])||ed.__party_name;
+  const dpDoc=pickFirst(dp,['documento','cpf','cnpj','cpf_mascarado','cpf_parcial']);
+  const dpNasc=pickFirst(dp,['data_nascimento','nascimento','dt_nascimento']);
+  const dpMae=pickFirst(dp,['nome_mae','mae','nome_da_mae']);
+  if(dpNome||dpDoc||dpNasc||dpMae){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>👤</span> Dados pessoais</div>'
-      +(dp.nome?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nome:</span><span class="modal-enrich-row-value">'+dp.nome+'</span></div>':'')
-      +(dp.documento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Doc.:</span><span class="modal-enrich-row-value">'+dp.documento+'</span></div>':'')
-      +(dp.data_nascimento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nascimento:</span><span class="modal-enrich-row-value">'+formatDate(dp.data_nascimento)+(dp.idade?' ('+dp.idade+' anos)':'')+'</span></div>':'')
-      +(dp.nome_mae?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Mãe:</span><span class="modal-enrich-row-value">'+dp.nome_mae+'</span></div>':'')
+      +(dpNome?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nome:</span><span class="modal-enrich-row-value">'+dpNome+'</span></div>':'')
+      +(dpDoc?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Doc.:</span><span class="modal-enrich-row-value">'+dpDoc+'</span></div>':'')
+      +(dpNasc?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nascimento:</span><span class="modal-enrich-row-value">'+formatDate(dpNasc)+(dp.idade?' ('+dp.idade+' anos)':'')+'</span></div>':'')
+      +(dpMae?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Mãe:</span><span class="modal-enrich-row-value">'+dpMae+'</span></div>':'')
       +'</div>';
   }
   
   // Contatos
-  if(ed.telefones||ed.emails){
+  const telefones=asArray(ed.telefones||ed.fones||ed.phones);
+  const emails=asArray(ed.emails||ed.email);
+  if(telefones.length>0||emails.length>0){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📱</span> Contatos</div>';
-    const telefones=asArray(ed.telefones);
     if(telefones.length>0){
       html+='<ul class="modal-enrich-list">';
-      telefones.forEach(t=>{
-        const numero=typeof t==='string'?t:pickFirst(t,['numero','telefone','phone','valor']);
-        const tipo=typeof t==='string'?'':pickFirst(t,['tipo','type','classificacao']);
-        const whatsapp=typeof t==='object'&&(t.whatsapp||t.is_whatsapp);
-        html+='<li>'+formatPhone(numero)+(tipo?' <span style="font-size:10px;color:var(--text-muted)">'+tipo+'</span>':'')+(whatsapp?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
+      telefones.slice(0,3).forEach(t=>{
+        const numero=typeof t==='string'?t:pickFirst(t,['numero','telefone','phone','valor','fone']);
+        const tipo=typeof t==='string'?'':pickFirst(t,['tipo','type','classificacao','categoria']);
+        const whatsapp=typeof t==='object'&&(t.whatsapp||t.is_whatsapp||t.tem_whatsapp);
+        if(numero)html+='<li>'+formatPhone(numero)+(tipo?' <span style="font-size:10px;color:var(--text-muted)">'+tipo+'</span>':'')+(whatsapp?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
       });
       html+='</ul>';
     }
-    const emails=asArray(ed.emails);
     if(emails.length>0){
       html+='<div style="margin-top:8px">';
-      emails.forEach(e=>{html+='<div class="modal-enrich-row">✉️ '+(typeof e==='string'?e:pickFirst(e,['endereco','email','valor']))+'</div>'});
+      emails.slice(0,3).forEach(e=>{
+        const addr=typeof e==='string'?e:pickFirst(e,['endereco','email','valor','address']);
+        if(addr)html+='<div class="modal-enrich-row">✉️ '+addr+'</div>';
+      });
       html+='</div>';
     }
     html+='</div>';
@@ -1572,14 +1607,22 @@ const showEnrichData=p=>{
   
   // Endereço
   if(asArray(ed.enderecos).length>0){
-    const e=asArray(ed.enderecos)[0];
-    const cidade=pickFirst(e,['cidade','municipio']);
-    const uf=pickFirst(e,['uf','estado']);
-    const cep=pickFirst(e,['cep','zipcode']);
-    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📍</span> Endereço</div>'
-      +'<div class="modal-enrich-row">'+[pickFirst(e,['logradouro','rua','endereco']),pickFirst(e,['numero','num'])].filter(Boolean).join(', ')+(e.bairro?' - '+e.bairro:'')+'</div>'
-      +'<div class="modal-enrich-row">'+[cidade,uf].filter(Boolean).join('/')+(cep?' - CEP '+cep:'')+'</div>'
-      +'</div>';
+    asArray(ed.enderecos).slice(0,2).forEach(e=>{
+      // Suporta cidade_uf flat ("PIRACANJUBA/GO") ou campos separados
+      let cidade=pickFirst(e,['cidade','municipio','city']);
+      let uf=pickFirst(e,['uf','estado','state']);
+      if(!cidade&&e.cidade_uf){const p=(e.cidade_uf||'').split('/');cidade=p[0];uf=p[1];}
+      const cep=pickFirst(e,['cep','zipcode','codigo_postal']);
+      const logradouro=pickFirst(e,['logradouro','rua','endereco','street']);
+      const numero=pickFirst(e,['numero','num','number']);
+      const bairro=pickFirst(e,['bairro','distrito','neighborhood']);
+      const linhaRua=[logradouro,numero].filter(v=>v&&v!=='-'&&v!=='0').join(', ')+(bairro?' - '+bairro:'');
+      const linhaCidade=[cidade,uf].filter(Boolean).join('/')+(cep?' - CEP '+cep:'');
+      html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📍</span> Endereço</div>'
+        +(linhaRua?'<div class="modal-enrich-row">'+linhaRua+'</div>':'')
+        +(linhaCidade?'<div class="modal-enrich-row">'+linhaCidade+'</div>':'')
+        +'</div>';
+    });
   }
   
   // Perfil sociodemográfico
@@ -1646,6 +1689,11 @@ const fetchEnrichedProcessDetail=async(cnj)=>{
   for(const key of keys){
     try{
       const detail=await apiCall('/processos/'+encodeURIComponent(key));
+      // DEBUG — remover após mapear campos da DATE Solutions
+      if(detail?.enrichment_data){
+        console.log('[ENRICH DEBUG] enrichment_data recebido:',JSON.stringify(detail.enrichment_data,null,2));
+        console.log('[ENRICH DEBUG] enrichment_summary:',JSON.stringify(detail.enrichment_summary,null,2));
+      }
       const data=applyEnrichmentPayload(currentProcesso,detail);
       if(data){
         currentProcesso={...currentProcesso,...detail,enrichment_data:currentProcesso.enrichment_data,enrichment_summary:currentProcesso.enrichment_summary};
@@ -1716,36 +1764,45 @@ const confirmEnrich=async()=>{
     };
 
     const looksJuridica=nome=>/\b(LTDA|S\.?A\.?|S\/A|EIRELI|ME|EPP|BANCO|COMPANHIA|CIA|ASSOCIACAO|ASSOCIAÇÃO|MUNICIPIO|MUNICÍPIO|ESTADO|FAZENDA)\b/i.test(nome||'');
-    const addParte=(nome,documento,papel,tipo)=>{
+    const addParte=(nome,documento,papel,tipo,cidade,uf)=>{
       nome=(nome||'').toString().trim();
       if(!nome||nome==='-')return;
       const key=(documento||nome).toString().replace(/\W/g,'').toUpperCase();
-      if(processos.some(item=>((item.pessoa.documento||item.pessoa.nomeRazao||'').toString().replace(/\W/g,'').toUpperCase())===key))return;
+      if(processos.some(item=>((item.pessoa.documento||item.pessoa.nome||'').toString().replace(/\W/g,'').toUpperCase())===key))return;
       const tipoPessoa=tipo?normTipo(tipo,papel):(looksJuridica(nome)?'J':normTipo('',papel));
       processos.push({
         processo_id:processoIdInt,
         cnj:cnjRaw,
         pessoa:{
-          nomeRazao:nome,
           nome:nome,
-          documento:(documento||'').toString().replace(/\D/g,''),
-          cpf:(documento||'').toString().replace(/\D/g,''),
-          tipoPessoa:tipoPessoa
+          documento:(documento||'').toString().replace(/\D/g,'')||null,
+          tipoPessoa:tipoPessoa,
+          cidade:cidade||null,
+          uf:uf||null
         }
       });
     };
 
-    // Prioriza réu/outro, mas também envia autor quando disponível.
-    addParte(currentProcesso.reu||currentProcesso.outro,currentProcesso.reu_documento||currentProcesso.outro_documento,'RÉU',currentProcesso.reu_tipo_pessoa);
-    addParte(currentProcesso.autor,currentProcesso.autor_documento,'AUTOR',currentProcesso.autor_tipo_pessoa);
+    // Extrai cidade/uf do processo para enriquecer a busca na DATE Solutions
+    const procCidade=currentProcesso.cidade||currentProcesso.municipio||null;
+    const procUf=currentProcesso.uf||currentProcesso.estado||
+      (currentProcesso.tribunal||'').replace(/^TJ/,'').slice(0,2)||null;
+
+    // Prioriza réu/outro, mas também envia autor quando disponível
+    addParte(currentProcesso.reu||currentProcesso.outro,currentProcesso.reu_documento||currentProcesso.outro_documento,'RÉU',currentProcesso.reu_tipo_pessoa,procCidade,procUf);
+    addParte(currentProcesso.autor,currentProcesso.autor_documento,'AUTOR',currentProcesso.autor_tipo_pessoa,procCidade,procUf);
 
     partes.forEach(p=>{
       const papel=p.papel||p.tipo||p.qualificacao||p.polo||'';
+      const pCidade=p.cidade||p.municipio||procCidade;
+      const pUf=p.uf||p.estado||procUf;
       addParte(
         p.nome||p.nomeRazao||p.nome_razao||p.razao_social,
         p.documento||p.cpf||p.cnpj,
         papel,
-        p.tipo_pessoa||p.tipoPessoa
+        p.tipo_pessoa||p.tipoPessoa,
+        pCidade,
+        pUf
       );
     });
 
