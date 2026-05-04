@@ -236,11 +236,13 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .search-bar input::placeholder{color:#aaa}
 .filters-row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 .filter-group{display:flex;flex-direction:column;gap:4px}
-.filter-group label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em}
-.filter-group select,.filter-group input{padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s}
+.filter-group label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.02em;height:16px;display:flex;align-items:center}
+.filter-group select,.filter-group input{padding:0 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s;height:36px;box-sizing:border-box;line-height:36px}
 .filter-group select:focus,.filter-group input:focus{border-color:var(--azul-petroleo)}
 .filter-group input[type="number"]{width:120px}
+.filter-group input[type="date"]{width:158px;cursor:pointer}
 .filter-group select{min-width:115px}
+.filters-row .btn{height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 
 /* PROCESSO CARD - OTIMIZADO */
 .processo-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:12px;border:1.5px solid transparent;cursor:pointer;transition:all .12s}
@@ -439,7 +441,12 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .prosp-quick-btn{padding:6px 12px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;font-family:inherit;color:var(--grafite)}
 .prosp-quick-btn:hover{border-color:var(--azul-petroleo);color:var(--azul-petroleo);background:var(--info-bg)}
 .prosp-filters{display:flex;flex-direction:column;gap:16px}
-.prosp-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.prosp-filter-row{display:grid;gap:14px;align-items:flex-end}
+.prosp-filter-row.row-4{grid-template-columns:1fr 1fr 1fr 1.4fr}
+.prosp-filter-row.row-2{grid-template-columns:1fr 1fr}
+.prosp-filter-row .filter-group select,.prosp-filter-row .filter-group input{height:36px;padding:0 10px;box-sizing:border-box;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--grafite);outline:none;transition:border-color .15s;line-height:36px;width:100%}
+.prosp-filter-row .filter-group input[type="date"]{cursor:pointer}
+.prosp-filter-row .filter-group select:focus,.prosp-filter-row .filter-group input:focus{border-color:var(--azul-petroleo)}
 .prosp-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border-light)}
 .prosp-summary{margin-bottom:20px}
 .prosp-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
@@ -656,6 +663,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="filters-row">
 <div class="filter-group"><label>Tribunal</label><select id="filterTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
 <div class="filter-group"><label>Valor mínimo</label><input type="number" id="filterValorMin" placeholder="Ex: 10000" min="0"></div>
+<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="filterDataInicio" title="Filtrar processos distribuídos a partir desta data"></div>
 <div class="filter-group" style="align-self:flex-end"><button class="btn btn-ghost" onclick="clearFilters()"><svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Limpar</button></div>
 </div>
 </div>
@@ -725,12 +733,13 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card">
 <div class="card-title">🎯 Filtros de Prospecção</div>
 <div class="prosp-filters">
-<div class="prosp-filter-row">
+<div class="prosp-filter-row row-4">
 <div class="filter-group"><label>Valor mínimo (R$)</label><input type="number" id="prospValorMin" placeholder="10.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Valor máximo (R$)</label><input type="number" id="prospValorMax" placeholder="500.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
+<div class="filter-group"><label>Distribuído a partir de</label><input type="date" id="prospDataInicio" title="Filtrar processos distribuídos a partir desta data" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Tribunal</label><select id="prospTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
 </div>
-<div class="prosp-filter-row">
+<div class="prosp-filter-row row-2">
 <div class="filter-group"><label>Nome da Parte (Autor)</label><input type="text" id="prospAutor" placeholder="Ex: João Silva, Maria..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 <div class="filter-group"><label>Réu / Outro contém</label><input type="text" id="prospReu" placeholder="Banco, financeira..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 </div>
@@ -1001,6 +1010,7 @@ const clearFilters=()=>{
   document.getElementById('searchInput').value='';
   document.getElementById('filterTribunal').value='';
   document.getElementById('filterValorMin').value='';
+  document.getElementById('filterDataInicio').value='';
   document.getElementById('searchResults').innerHTML='';
   document.getElementById('searchResultsHeader').style.display='none';
   document.getElementById('paginationContainer').style.display='none';
@@ -1016,6 +1026,7 @@ const doSearch=async(page=1)=>{
   const txt=document.getElementById('searchInput').value.trim();
   const tribunal=document.getElementById('filterTribunal').value;
   const valorMin=document.getElementById('filterValorMin').value;
+  const dataInicio=document.getElementById('filterDataInicio').value;
   
   document.getElementById('searchLoading').style.display='flex';
   document.getElementById('searchEmpty').style.display='none';
@@ -1029,6 +1040,7 @@ const doSearch=async(page=1)=>{
     let ep='/processos?limit='+currentLimit+'&offset='+offset;
     if(tribunal)ep+='&tribunal='+tribunal;
     if(valorMin)ep+='&valor_min='+valorMin;
+    if(dataInicio)ep+='&data_inicio='+dataInicio;
     // nome_part busca em todas as partes (autor, réu, terceiros, etc)
     if(txt)ep+='&nome_part='+encodeURIComponent(txt);
     
@@ -1120,6 +1132,7 @@ const clearProspFilters=()=>{
   document.getElementById('prospValorMin').value='';
   document.getElementById('prospValorMax').value='';
   document.getElementById('prospTribunal').value='';
+  document.getElementById('prospDataInicio').value='';
   document.getElementById('prospAutor').value='';
   document.getElementById('prospReu').value='';
   document.getElementById('prospResults').innerHTML='';
@@ -1134,6 +1147,7 @@ const doProspSearch=async()=>{
   const valorMin=document.getElementById('prospValorMin').value;
   const valorMax=document.getElementById('prospValorMax').value;
   const tribunal=document.getElementById('prospTribunal').value;
+  const dataInicio=document.getElementById('prospDataInicio').value;
   const autorFilter=document.getElementById('prospAutor').value.trim().toLowerCase();
   const reuFilter=document.getElementById('prospReu').value.trim().toLowerCase();
   
@@ -1149,9 +1163,19 @@ const doProspSearch=async()=>{
     if(tribunal)ep+='&tribunal='+tribunal;
     if(valorMin)ep+='&valor_min='+valorMin;
     if(valorMax)ep+='&valor_max='+valorMax;
+    if(dataInicio)ep+='&data_inicio='+dataInicio;
     
     const res=await apiCall(ep);
     let lista=res.data||res.items||res.processos||(Array.isArray(res)?res:[]);
+    
+    // Filtro local por DATA (fallback caso API não suporte ainda)
+    if(dataInicio){
+      const dtMin=new Date(dataInicio);
+      lista=lista.filter(p=>{
+        const dtP=p.data_distribuicao||p.data_inicio||p.data_cadastro||'';
+        return dtP?new Date(dtP)>=dtMin:true;
+      });
+    }
     
     // Filtro local por AUTOR (campo autor especificamente)
     if(autorFilter){
