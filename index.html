@@ -890,7 +890,7 @@ const getStatusClass=s=>{if(!s)return'normalizado';const x=s.toUpperCase();retur
 const getStatusLabel=s=>{if(!s)return'OK';const x=s.toUpperCase();return x.includes('PROCESSANDO')?'Processando':x.includes('ERRO')?'Erro':'OK'};
 const truncate=(s,l=45)=>!s?'-':s.length>l?s.substring(0,l)+'...':s;
 const showToast=(m,e=false)=>{const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=m;document.getElementById('toastIcon').textContent=e?'✕':'✓';t.className='toast active'+(e?' error':'');setTimeout(()=>t.classList.remove('active'),3000)};
-const apiCall=async(ep,opt={})=>{const h={'Content-Type':'application/json',...opt.headers};if(token)h['Authorization']='Bearer '+token;let r;try{r=await fetch(API_BASE+API_VERSION+ep,{...opt,headers:h})}catch(e){throw new Error('Falha na conexão com o servidor')}if(r.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}if(!r.ok){const e=await r.json().catch(()=>({}));const msg=typeof e.detail==='string'?e.detail:typeof e.detail==='object'?JSON.stringify(e.detail):e.message||'Erro interno';throw new Error(msg)}return r.json()};
+const apiCall=async(ep,opt={})=>{const h={'Content-Type':'application/json',...opt.headers};if(token)h['Authorization']='Bearer '+token;let r;try{r=await fetch(API_BASE+API_VERSION+ep,{...opt,headers:h})}catch(e){throw new Error('Falha na conexão com o servidor')}if(r.status===401){showToast('Sessão expirada',true);handleLogout();throw new Error('401')}if(!r.ok){const e=await r.json().catch(()=>({}));const d=e.detail;const msg=Array.isArray(d)?d.map(x=>x.msg||x.message||JSON.stringify(x)).join('; '):(typeof d==='string'?d:(d?JSON.stringify(d):null))||e.message||'Erro interno';throw new Error(msg)}return r.json()};
 const isInWatchlist=cnj=>watchlistCache.some(w=>(w.processo_numero||w.cnj)===cnj);
 const getWatchlistItem=cnj=>watchlistCache.find(w=>(w.processo_numero||w.cnj)===cnj);
 
@@ -1551,7 +1551,12 @@ const confirmEnrich=async()=>{
       });
       if(!resp.ok){
         const errData=await resp.json().catch(()=>({}));
-        throw new Error(errData.detail||errData.message||'Erro ao solicitar enriquecimento');
+        const detail=errData.detail;
+        const errMsg=Array.isArray(detail)
+          ?detail.map(e=>e.msg||e.message||e.ctx?.error||JSON.stringify(e)).join('; ')
+          :(typeof detail==='string'?detail:(detail?JSON.stringify(detail):null))
+          ||errData.message||'Erro ao solicitar enriquecimento';
+        throw new Error(errMsg);
       }
       result=await resp.json();
     }catch(fetchErr){
