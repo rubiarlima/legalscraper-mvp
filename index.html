@@ -496,7 +496,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.6.3</div>
+<div class="login-footer">v2.6.4</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -625,7 +625,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.6.3</span><span>•</span><span>Atualizado em Mai/2026</span></div>
+<div class="about-version"><span>Versão 2.6.4</span><span>•</span><span>Atualizado em Mai/2026</span></div>
 <a href="https://www.opportium.com.br" target="_blank" class="about-link">www.opportium.com.br ↗</a>
 </div>
 </div>
@@ -1542,10 +1542,21 @@ const confirmEnrich=async()=>{
     btn.textContent='Enviando...';
     
     // 3. Chamar endpoint de enriquecimento
-    const result=await apiCall('/enrichment/request',{
-      method:'POST',
-      body:JSON.stringify({processos:processos})
-    });
+    let result;
+    try{
+      const resp=await fetch(API_BASE+API_VERSION+'/enrichment/request',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({processos:processos})
+      });
+      if(!resp.ok){
+        const errData=await resp.json().catch(()=>({}));
+        throw new Error(errData.detail||errData.message||'Erro ao solicitar enriquecimento');
+      }
+      result=await resp.json();
+    }catch(fetchErr){
+      throw new Error(fetchErr.message||'Falha na conexão');
+    }
     
     closeEnrichConfirm();
     
