@@ -1489,6 +1489,16 @@ const confirmEnrich=async()=>{
     // 2. Montar array de processos com todas as partes
     const processos=[];
     
+    // Normaliza qualquer variante de tipo de pessoa para 'F' ou 'J'
+    const normTipo=(raw,papel)=>{
+      const v=(raw||'').toString().toUpperCase().trim();
+      if(v==='F'||v==='PF'||v.includes('FIS')||v.includes('NATURAL'))return'F';
+      if(v==='J'||v==='PJ'||v.includes('JUR')||v.includes('LEGAL'))return'J';
+      // fallback pelo papel
+      if(papel&&papel.toUpperCase().includes('AUTOR'))return'F';
+      return'J';
+    };
+
     if(partes.length>0){
       // Usar dados das partes
       partes.forEach(p=>{
@@ -1500,7 +1510,7 @@ const confirmEnrich=async()=>{
             nomeRazao:p.nome||p.nomeRazao||'',
             documento:p.documento||p.cpf||p.cnpj||'',
             cpf:p.cpf||p.documento||'',
-            tipoPessoa:p.tipo_pessoa||p.tipoPessoa||(p.papel?.includes('AUTOR')?'F':'J'),
+            tipoPessoa:normTipo(p.tipo_pessoa||p.tipoPessoa,p.papel||p.tipo||''),
             cidade:p.cidade||'',
             uf:p.uf||''
           }
