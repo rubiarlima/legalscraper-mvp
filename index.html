@@ -772,7 +772,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="modalEnrichContent">
 <div id="modalEnrichPrompt" class="enrich-prompt">
 <div class="enrich-prompt-icon">🔍</div>
-<div class="enrich-prompt-text">Obtenha dados detalhados do autor: contatos, endereço, renda estimada, empresas e veículos.</div>
+<div class="enrich-prompt-text">Obtenha dados detalhados das partes: autor, réu, contatos, endereço, renda estimada, empresas e veículos.</div>
 <button class="btn btn-primary" id="btnEnrich" onclick="askEnrich()"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Enriquecer Dados</button>
 <div class="enrich-prompt-note">Consome 1 crédito</div>
 </div>
@@ -1321,7 +1321,7 @@ const openModal=async num=>{
     const campos=[['Classe',p.classe],['Assunto',p.assunto],['Foro',p.foro],['Vara',p.vara],['Juiz',p.juiz],['Distribuição',p.distribuicao_data||formatDate(p.data_distribuicao)],['Área',p.area],['Instância',p.instancia],['Sistema',p.sistema_origem?p.sistema_origem.toUpperCase():''],['Atualização',formatDate(p.ultima_atualizacao)]].filter(c=>c[1]&&c[1]!=='-'&&c[1]!=='null');
     document.getElementById('modalGridInfo').innerHTML=campos.map(c=>'<div class="modal-field"><div class="modal-label">'+c[0]+'</div><div class="modal-value">'+c[1]+'</div></div>').join('');
     
-    renderPartes(p.partes||[],p.autor,p.reu);
+    renderPartes(p.partes||[],p.autor,p.reu||p.outro);
     
     // Movimentação
     if(p.ultima_movimentacao_texto||p.ultima_movimentacao_data){
@@ -1369,6 +1369,100 @@ const searchParte=(nome)=>{
   doSearch(1);
 };
 
+const ENRICHMENT_DATA_KEYS=['dados_pessoais','telefones','emails','enderecos','perfil_sociodemografico','participacoes_societarias','veiculos'];
+
+const normalizeEnrichStatus=raw=>{
+  const s=(raw||'').toString().toLowerCase();
+  if(['available','success','done','completed','concluido','concluído'].includes(s))return'available';
+  if(['pending','processing','queued','running','processando','em_processamento'].includes(s))return'pending';
+  if(['unavailable','warning','not_found','sem_dados','empty'].includes(s))return'unavailable';
+  if(['error','erro','failed','failure'].includes(s))return'error';
+  return s;
+};
+
+const hasValue=v=>{
+  if(v==null||v==='')return false;
+  if(Array.isArray(v))return v.some(hasValue);
+  if(typeof v==='object')return Object.values(v).some(hasValue);
+  return true;
+};
+
+const hasEnrichmentContent=obj=>!!obj&&ENRICHMENT_DATA_KEYS.some(k=>hasValue(obj[k]));
+const hasSummaryContent=obj=>hasValue(obj?.enrichment_summary?.resumo)||hasValue(obj?.summary?.resumo)||hasValue(obj?.resumo);
+
+const pickFirst=(obj,keys)=>keys.map(k=>obj?.[k]).find(v=>v!=null&&v!=='');
+const asArray=v=>Array.isArray(v)?v:(v?[v]:[]);
+const formatMaybeCurrency=v=>typeof v==='string'?v:formatCurrency(v);
+
+const summaryToData=(summary,source={})=>{
+  const r=summary?.resumo||summary||{};
+  if(!hasValue(r))return null;
+  const cidadeUf=r.cidade_uf||'';
+  const parts=cidadeUf.split('/');
+  const data={
+    __party_name:pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']),
+    __party_role:pickFirst(source,['papel','tipo','polo','qualificacao']),
+    dados_pessoais:{
+      documento:r.cpf_parcial
+    },
+    telefones:r.telefone_principal?[{numero:r.telefone_principal,tipo:'Principal'}]:[],
+    enderecos:cidadeUf?[{cidade:parts[0],uf:parts[1]}]:[],
+    perfil_sociodemografico:{
+      classe_social:r.perfil_classe,
+      estimativa_renda:r.renda_presumida
+    },
+    participacoes_societarias:r.empresa_principal?[{razao_social:r.empresa_principal}]:[],
+    veiculos:r.veiculo_principal?[{descricao:r.veiculo_principal}]:[]
+  };
+  return hasEnrichmentContent(data)?data:null;
+};
+
+const normalizeEnrichmentData=(obj,source={})=>{
+  if(!obj)return null;
+  if(obj.enrichment_data&&hasEnrichmentContent(obj.enrichment_data))return {...obj.enrichment_data,__party_name:pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']),__party_role:pickFirst(source,['papel','tipo','polo','qualificacao'])};
+  if(hasEnrichmentContent(obj)){
+    const data={};
+    ENRICHMENT_DATA_KEYS.forEach(k=>{if(obj[k])data[k]=obj[k]});
+    data.__party_name=pickFirst(source,['nome','nomeRazao','nome_razao','razao_social'])||pickFirst(source?.pessoa||{},['nome','nomeRazao']);
+    data.__party_role=pickFirst(source,['papel','tipo','polo','qualificacao']);
+    return data;
+  }
+  return summaryToData(obj.enrichment_summary||obj.summary||obj.resumo,obj);
+};
+
+const getEnrichmentData=obj=>{
+  if(!obj)return null;
+  const direct=normalizeEnrichmentData(obj,obj);
+  if(direct)return direct;
+  const wrappers=['data','resultado','result','enrichment','enrichments','results','items','partes','pessoas'];
+  for(const key of wrappers){
+    const value=obj[key];
+    if(Array.isArray(value)){
+      const candidates=value.map(item=>normalizeEnrichmentData(item,item)).filter(Boolean);
+      if(candidates.length){
+        const reu=candidates.find(c=>(c.__party_role||'').toString().toUpperCase().includes('RÉU')||(c.__party_role||'').toString().toUpperCase().includes('REU'));
+        return reu||candidates[0];
+      }
+    }else{
+      const nested=normalizeEnrichmentData(value,value);
+      if(nested)return nested;
+    }
+  }
+  return null;
+};
+
+const applyEnrichmentPayload=(target,payload)=>{
+  const data=getEnrichmentData(payload);
+  if(data)target.enrichment_data=data;
+  if(payload?.enrichment_summary)target.enrichment_summary=payload.enrichment_summary;
+  else if(payload?.summary)target.enrichment_summary=payload.summary;
+  else if(payload?.status||payload?.estado){
+    target.enrichment_summary={...(target.enrichment_summary||{}),status:normalizeEnrichStatus(payload.status||payload.estado),updated_at:payload.updated_at};
+  }
+  if(data&&!target.enrichment_summary)target.enrichment_summary={status:'available'};
+  return data;
+};
+
 const renderModalEnrich=p=>{
   const section=document.getElementById('modalEnrichSection');
   const badge=document.getElementById('modalEnrichBadge');
@@ -1377,8 +1471,9 @@ const renderModalEnrich=p=>{
   const dataEl=document.getElementById('modalEnrichData');
   section.style.display='block';
 
+  const enrichData=applyEnrichmentPayload(p,p);
   const summary=p.enrichment_summary||null;
-  const statusStr=(summary?.status||'').toLowerCase();
+  const statusStr=normalizeEnrichStatus(summary?.status||(enrichData?'available':''));
 
   // Reset
   prompt.style.display='none';
@@ -1387,21 +1482,19 @@ const renderModalEnrich=p=>{
   badge.className='enrich-status';
   badge.textContent='';
 
-  if(statusStr==='available'&&p.enrichment_data){
+  if(statusStr==='available'&&enrichData){
     badge.className='enrich-status available';
     badge.textContent='✓ Enriquecido';
     showEnrichData(p);
-  }else if(statusStr==='warning'){
+  }else if(statusStr==='unavailable'){
     badge.className='enrich-status unavailable';
     badge.textContent='Sem dados';
     dataEl.innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span><span class="enrich-unavailable-text">Nenhum dado encontrado para esta parte na base da DATE Solutions.</span></div>';
     dataEl.style.display='block';
-  }else if(statusStr==='processing'){
+  }else if(statusStr==='pending'){
     badge.className='enrich-status pending';
     badge.textContent='⏳ Processando';
-    loading.style.display='flex';
-    const cnjRaw=String(p.processo_numero||'').replace(/\D/g,'');
-    pollEnrichStatus(cnjRaw);
+    prompt.style.display='block';
   }else{
     // Sem dados ainda — mostrar botão
     prompt.style.display='block';
@@ -1409,11 +1502,13 @@ const renderModalEnrich=p=>{
 };
 
 const showEnrichData=p=>{
-  const ed=p.enrichment_data;
+  const ed=getEnrichmentData(p);
   if(!ed)return;
   
   const data=document.getElementById('modalEnrichData');
-  let html='<div class="modal-enrich"><div class="modal-enrich-header"><span class="modal-enrich-title">Dados do Autor</span>'
+  const role=(ed.__party_role||'').toString().toUpperCase();
+  const title=role.includes('RÉU')||role.includes('REU')?'Dados do Réu':(role.includes('AUTOR')?'Dados do Autor':'Dados da Parte');
+  let html='<div class="modal-enrich"><div class="modal-enrich-header"><span class="modal-enrich-title">'+title+(ed.__party_name?' - '+ed.__party_name:'')+'</span>'
     +(p.enrichment_summary?.updated_at?'<span class="modal-enrich-updated">Atualizado: '+formatDate(p.enrichment_summary.updated_at)+'</span>':'')
     +'</div><div class="modal-enrich-grid">';
   
@@ -1422,7 +1517,7 @@ const showEnrichData=p=>{
     const dp=ed.dados_pessoais;
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>👤</span> Dados pessoais</div>'
       +(dp.nome?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nome:</span><span class="modal-enrich-row-value">'+dp.nome+'</span></div>':'')
-      +(dp.documento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">CPF:</span><span class="modal-enrich-row-value">'+dp.documento+'</span></div>':'')
+      +(dp.documento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Doc.:</span><span class="modal-enrich-row-value">'+dp.documento+'</span></div>':'')
       +(dp.data_nascimento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nascimento:</span><span class="modal-enrich-row-value">'+formatDate(dp.data_nascimento)+(dp.idade?' ('+dp.idade+' anos)':'')+'</span></div>':'')
       +(dp.nome_mae?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Mãe:</span><span class="modal-enrich-row-value">'+dp.nome_mae+'</span></div>':'')
       +'</div>';
@@ -1431,55 +1526,69 @@ const showEnrichData=p=>{
   // Contatos
   if(ed.telefones||ed.emails){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📱</span> Contatos</div>';
-    if(ed.telefones&&ed.telefones.length>0){
+    const telefones=asArray(ed.telefones);
+    if(telefones.length>0){
       html+='<ul class="modal-enrich-list">';
-      ed.telefones.forEach(t=>{
-        html+='<li>'+formatPhone(t.numero)+' <span style="font-size:10px;color:var(--text-muted)">'+t.tipo+'</span>'+(t.whatsapp?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
+      telefones.forEach(t=>{
+        const numero=typeof t==='string'?t:pickFirst(t,['numero','telefone','phone','valor']);
+        const tipo=typeof t==='string'?'':pickFirst(t,['tipo','type','classificacao']);
+        const whatsapp=typeof t==='object'&&(t.whatsapp||t.is_whatsapp);
+        html+='<li>'+formatPhone(numero)+(tipo?' <span style="font-size:10px;color:var(--text-muted)">'+tipo+'</span>':'')+(whatsapp?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
       });
       html+='</ul>';
     }
-    if(ed.emails&&ed.emails.length>0){
+    const emails=asArray(ed.emails);
+    if(emails.length>0){
       html+='<div style="margin-top:8px">';
-      ed.emails.forEach(e=>{html+='<div class="modal-enrich-row">✉️ '+e.endereco+'</div>'});
+      emails.forEach(e=>{html+='<div class="modal-enrich-row">✉️ '+(typeof e==='string'?e:pickFirst(e,['endereco','email','valor']))+'</div>'});
       html+='</div>';
     }
     html+='</div>';
   }
   
   // Endereço
-  if(ed.enderecos&&ed.enderecos.length>0){
-    const e=ed.enderecos[0];
+  if(asArray(ed.enderecos).length>0){
+    const e=asArray(ed.enderecos)[0];
+    const cidade=pickFirst(e,['cidade','municipio']);
+    const uf=pickFirst(e,['uf','estado']);
+    const cep=pickFirst(e,['cep','zipcode']);
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📍</span> Endereço</div>'
-      +'<div class="modal-enrich-row">'+e.logradouro+', '+e.numero+(e.bairro?' - '+e.bairro:'')+'</div>'
-      +'<div class="modal-enrich-row">'+e.cidade+'/'+e.uf+(e.cep?' - CEP '+e.cep:'')+'</div>'
+      +'<div class="modal-enrich-row">'+[pickFirst(e,['logradouro','rua','endereco']),pickFirst(e,['numero','num'])].filter(Boolean).join(', ')+(e.bairro?' - '+e.bairro:'')+'</div>'
+      +'<div class="modal-enrich-row">'+[cidade,uf].filter(Boolean).join('/')+(cep?' - CEP '+cep:'')+'</div>'
       +'</div>';
   }
   
   // Perfil sociodemográfico
   if(ed.perfil_sociodemografico){
     const ps=ed.perfil_sociodemografico;
+    const classe=pickFirst(ps,['classe_social','perfil_classe','classe']);
+    const renda=pickFirst(ps,['estimativa_renda','renda_presumida','renda']);
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>💼</span> Perfil</div>'
-      +(ps.classe_social?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Classe:</span><span class="modal-enrich-row-value">'+ps.classe_social+'</span></div>':'')
-      +(ps.estimativa_renda?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Renda:</span><span class="modal-enrich-row-value">'+formatCurrency(ps.estimativa_renda)+'</span></div>':'')
+      +(classe?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Classe:</span><span class="modal-enrich-row-value">'+classe+'</span></div>':'')
+      +(renda?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Renda:</span><span class="modal-enrich-row-value">'+formatMaybeCurrency(renda)+'</span></div>':'')
       +(ps.escolaridade?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Escolaridade:</span><span class="modal-enrich-row-value">'+ps.escolaridade+'</span></div>':'')
       +(ps.segmento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Segmento:</span><span class="modal-enrich-row-value">'+ps.segmento+'</span></div>':'')
       +'</div>';
   }
   
   // Empresas
-  if(ed.participacoes_societarias&&ed.participacoes_societarias.length>0){
+  if(asArray(ed.participacoes_societarias).length>0){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>🏢</span> Empresas</div><ul class="modal-enrich-list">';
-    ed.participacoes_societarias.forEach(e=>{
-      html+='<li><div><div style="font-weight:500">'+e.razao_social+'</div><div style="font-size:10px;color:var(--text-muted)">CNPJ: '+e.cnpj+' • '+e.percentual+'%</div></div></li>';
+    asArray(ed.participacoes_societarias).forEach(e=>{
+      const nome=pickFirst(e,['razao_social','nome','empresa','nome_fantasia']);
+      const cnpj=pickFirst(e,['cnpj','documento']);
+      const pct=pickFirst(e,['percentual','participacao']);
+      html+='<li><div><div style="font-weight:500">'+nome+'</div><div style="font-size:10px;color:var(--text-muted)">'+(cnpj?'CNPJ: '+cnpj:'')+(pct?' • '+pct+'%':'')+'</div></div></li>';
     });
     html+='</ul></div>';
   }
   
   // Veículos
-  if(ed.veiculos&&ed.veiculos.length>0){
+  if(asArray(ed.veiculos).length>0){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>🚗</span> Veículos</div><ul class="modal-enrich-list">';
-    ed.veiculos.forEach(v=>{
-      html+='<li>'+v.marca+' '+v.modelo+' ('+v.ano+') <span style="font-size:10px;color:var(--text-muted)">Placa: '+v.placa+'</span></li>';
+    asArray(ed.veiculos).forEach(v=>{
+      const desc=pickFirst(v,['descricao','veiculo'])||[v.marca,v.modelo].filter(Boolean).join(' ');
+      html+='<li>'+desc+(v.ano?' ('+v.ano+')':'')+(v.placa?' <span style="font-size:10px;color:var(--text-muted)">Placa: '+v.placa+'</span>':'')+'</li>';
     });
     html+='</ul></div>';
   }
@@ -1499,12 +1608,38 @@ const closeEnrichConfirm=()=>{
   document.getElementById('enrichConfirmOverlay').classList.remove('active');
 };
 
+const finishEnrichSuccess=()=>{
+  document.getElementById('modalEnrichLoading').style.display='none';
+  document.getElementById('modalEnrichBadge').className='enrich-status available';
+  document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
+  showEnrichData(currentProcesso);
+  showToast('Dados enriquecidos com sucesso!');
+};
+
+const fetchEnrichedProcessDetail=async(cnj)=>{
+  const cnjRaw=String(cnj||'').replace(/\D/g,'');
+  const keys=[cnjRaw,cnj].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  for(const key of keys){
+    try{
+      const detail=await apiCall('/processos/'+encodeURIComponent(key));
+      const data=applyEnrichmentPayload(currentProcesso,detail);
+      if(data){
+        currentProcesso={...currentProcesso,...detail,enrichment_data:currentProcesso.enrichment_data,enrichment_summary:currentProcesso.enrichment_summary};
+        return data;
+      }
+    }catch(e){}
+  }
+  return null;
+};
+
 const confirmEnrich=async()=>{
   if(!currentProcesso)return;
   const cnjRaw=String(currentProcesso.processo_numero||'').replace(/\D/g,'');
-  const cnj=formatCNJ(cnjRaw); // apenas para display
-  // Backend espera processo_id como inteiro (PK do banco)
   const processoIdInt=currentProcesso.id||currentProcesso.processo_id||null;
+  if(!cnjRaw||cnjRaw.length<20){
+    showToast('CNJ do processo não disponível para enriquecimento',true);
+    return;
+  }
   if(!processoIdInt){
     showToast('ID do processo não disponível para enriquecimento',true);
     return;
@@ -1515,15 +1650,28 @@ const confirmEnrich=async()=>{
   btn.textContent='Preparando...';
   
   try{
+    const extractPartes=(resp,depth=0)=>{
+      if(!resp||depth>3)return [];
+      if(Array.isArray(resp))return resp;
+      const keys=['data','partes','items','results','parties','pessoas','envolvidos'];
+      for(const key of keys){
+        const value=resp[key];
+        if(Array.isArray(value))return value;
+        const nested=extractPartes(value,depth+1);
+        if(nested.length)return nested;
+      }
+      return [];
+    };
+
     // 1. Buscar partes detalhadas (tenta raw first)
-    let partes=[];
+    let partes=extractPartes(currentProcesso.partes);
     try{
       const partesResp=await apiCall('/processos/'+encodeURIComponent(cnjRaw)+'/partes');
-      partes=partesResp.data||partesResp||[];
+      partes=extractPartes(partesResp);
     }catch(e){
       try{
-        const partesResp2=await apiCall('/processos/'+encodeURIComponent(cnj)+'/partes');
-        partes=partesResp2.data||partesResp2||[];
+        const partesResp2=await apiCall('/processos/'+encodeURIComponent(formatCNJ(cnjRaw))+'/partes');
+        partes=extractPartes(partesResp2);
       }catch(e2){
         // Partes não disponíveis, usar fallback
       }
@@ -1535,50 +1683,59 @@ const confirmEnrich=async()=>{
     // Normaliza qualquer variante de tipo de pessoa para 'F' ou 'J'
     const normTipo=(raw,papel)=>{
       const v=(raw||'').toString().toUpperCase().trim();
+      const p=(papel||'').toString().toUpperCase();
       if(v==='F'||v==='PF'||v.includes('FIS')||v.includes('NATURAL'))return'F';
       if(v==='J'||v==='PJ'||v.includes('JUR')||v.includes('LEGAL'))return'J';
       // fallback pelo papel
-      if(papel&&papel.toUpperCase().includes('AUTOR'))return'F';
+      if(p.includes('AUTOR')||p.includes('REQUERENTE')||p.includes('EXEQUENTE'))return'F';
       return'J';
     };
 
-    if(partes.length>0){
-      // Usar dados das partes
-      partes.forEach(p=>{
-        processos.push({
-          processo_id:processoIdInt,
-          cnj:cnjRaw,
-          pessoa:{
-            nome:p.nome||p.nomeRazao||'',
-            documento:p.documento||p.cpf||p.cnpj||'',
-            tipoPessoa:normTipo(p.tipo_pessoa||p.tipoPessoa,p.papel||p.tipo||'')
-          }
-        });
+    const looksJuridica=nome=>/\b(LTDA|S\.?A\.?|S\/A|EIRELI|ME|EPP|BANCO|COMPANHIA|CIA|ASSOCIACAO|ASSOCIAÇÃO|MUNICIPIO|MUNICÍPIO|ESTADO|FAZENDA)\b/i.test(nome||'');
+    const addParte=(nome,documento,papel,tipo)=>{
+      nome=(nome||'').toString().trim();
+      if(!nome||nome==='-')return;
+      const key=(documento||nome).toString().replace(/\W/g,'').toUpperCase();
+      if(processos.some(item=>((item.pessoa.documento||item.pessoa.nomeRazao||'').toString().replace(/\W/g,'').toUpperCase())===key))return;
+      const tipoPessoa=tipo?normTipo(tipo,papel):(looksJuridica(nome)?'J':normTipo('',papel));
+      processos.push({
+        processo_id:processoIdInt,
+        cnj:cnjRaw,
+        pessoa:{
+          nomeRazao:nome,
+          nome:nome,
+          documento:(documento||'').toString().replace(/\D/g,''),
+          cpf:(documento||'').toString().replace(/\D/g,''),
+          tipoPessoa:tipoPessoa
+        }
       });
-    }else{
-      // Fallback: usar autor e réu do processo
-      if(currentProcesso.autor){
-        processos.push({
-          processo_id:processoIdInt,
-          cnj:cnjRaw,
-          pessoa:{
-            nome:currentProcesso.autor,
-            documento:'',
-            tipoPessoa:'F'
-          }
-        });
-      }
-      if(currentProcesso.reu){
-        processos.push({
-          processo_id:processoIdInt,
-          cnj:cnjRaw,
-          pessoa:{
-            nome:currentProcesso.reu,
-            documento:'',
-            tipoPessoa:'J'
-          }
-        });
-      }
+    };
+
+    // Prioriza réu/outro, mas também envia autor quando disponível.
+    addParte(currentProcesso.reu||currentProcesso.outro,currentProcesso.reu_documento||currentProcesso.outro_documento,'RÉU',currentProcesso.reu_tipo_pessoa);
+    addParte(currentProcesso.autor,currentProcesso.autor_documento,'AUTOR',currentProcesso.autor_tipo_pessoa);
+
+    partes.forEach(p=>{
+      const papel=p.papel||p.tipo||p.qualificacao||p.polo||'';
+      addParte(
+        p.nome||p.nomeRazao||p.nome_razao||p.razao_social,
+        p.documento||p.cpf||p.cnpj,
+        papel,
+        p.tipo_pessoa||p.tipoPessoa
+      );
+    });
+
+    if(processos.length===0){
+      document.querySelectorAll('#modalPartes .parte-card').forEach(card=>{
+        const nome=card.querySelector('.parte-nome')?.textContent;
+        const papel=card.querySelector('.parte-papel')?.textContent;
+        addParte(nome,'',papel,'');
+      });
+    }
+
+    if(processos.length===0){
+      const q=document.getElementById('searchInput')?.value;
+      addParte(q,'','PARTE','');
     }
     
     if(processos.length===0){
@@ -1621,17 +1778,18 @@ const confirmEnrich=async()=>{
     document.getElementById('modalEnrichBadge').textContent='⏳ Processando';
     
     // 5. Se o resultado já veio com dados, mostrar
-    if(result.enrichment_data){
-      currentProcesso.enrichment_data=result.enrichment_data;
-      currentProcesso.enrichment_summary=result.enrichment_summary;
-      document.getElementById('modalEnrichLoading').style.display='none';
-      document.getElementById('modalEnrichBadge').className='enrich-status available';
-      document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
-      showEnrichData(currentProcesso);
-      showToast('Dados enriquecidos com sucesso!');
+    const immediateData=applyEnrichmentPayload(currentProcesso,result);
+    if(immediateData){
+      finishEnrichSuccess();
     }else{
-      // 6. Polling (API usa CNJ raw sem formatação)
-      pollEnrichStatus(cnjRaw);
+      const resultStatus=normalizeEnrichStatus(result.status||result.estado||result.enrichment_summary?.status||result.summary?.status);
+      if(resultStatus==='available'){
+        const detailData=await fetchEnrichedProcessDetail(cnjRaw);
+        if(detailData)finishEnrichSuccess();
+        else pollEnrichStatus(cnjRaw);
+      }else{
+        pollEnrichStatus(cnjRaw);
+      }
     }
   }catch(e){
     showToast('Erro: '+e.message,true);
@@ -1642,30 +1800,31 @@ const confirmEnrich=async()=>{
   }
 };
 
-const pollEnrichStatus=async(cnjRaw,attempts=0)=>{
-  if(attempts>=20){
+const pollEnrichStatus=async(cnj,attempts=0)=>{
+  if(attempts>=80){
     document.getElementById('modalEnrichLoading').style.display='none';
     document.getElementById('modalEnrichPrompt').style.display='block';
     document.getElementById('modalEnrichBadge').className='enrich-status';
     document.getElementById('modalEnrichBadge').textContent='';
-    showToast('Timeout aguardando enriquecimento. Tente novamente.',true);
+    showToast('A DATE ainda está processando. Você pode tentar abrir o processo novamente em alguns minutos.',true);
     return;
   }
   try{
+    const cnjRaw=String(cnj||'').replace(/\D/g,'');
     const status=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
-    const statusStr=(status.status||status.estado||'').toLowerCase();
-    const enrichData=status.enrichment_data||status.data||status.resultado;
+    const enrichData=applyEnrichmentPayload(currentProcesso,status);
+    const statusStr=normalizeEnrichStatus(status.status||status.estado||currentProcesso.enrichment_summary?.status||(enrichData?'available':''));
 
-    if(statusStr==='available'&&enrichData){
+    if(statusStr==='available'){
       // Sucesso com dados
-      currentProcesso.enrichment_data=enrichData;
-      currentProcesso.enrichment_summary=status.enrichment_summary||status.summary||{status:'available',updated_at:status.updated_at};
-      document.getElementById('modalEnrichLoading').style.display='none';
-      document.getElementById('modalEnrichBadge').className='enrich-status available';
-      document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
-      showEnrichData(currentProcesso);
-      showToast('Dados enriquecidos com sucesso!');
-    }else if(statusStr==='warning'){
+      if(enrichData){
+        finishEnrichSuccess();
+      }else{
+        const detailData=await fetchEnrichedProcessDetail(cnjRaw);
+        if(detailData)finishEnrichSuccess();
+        else setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
+      }
+    }else if(statusStr==='unavailable'){
       // Finalizado mas sem dados encontrados para esta pessoa
       document.getElementById('modalEnrichLoading').style.display='none';
       document.getElementById('modalEnrichPrompt').style.display='none';
@@ -1681,13 +1840,13 @@ const pollEnrichStatus=async(cnjRaw,attempts=0)=>{
       document.getElementById('modalEnrichBadge').textContent='';
       showToast('Erro no enriquecimento: '+(status.message||status.mensagem||'Tente novamente'),true);
     }else{
-      // processing - tentar novamente em 3s
-      const elapsed=Math.round((attempts+1)*3);
+      const delay=3000;
+      const elapsed=(attempts+1)*3;
       document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Consultando DATE Solutions... ('+elapsed+'s)';
-      setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
+      setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),delay);
     }
   }catch(e){
-    setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
+    setTimeout(()=>pollEnrichStatus(cnj,attempts+1),3000);
   }
 };
 
