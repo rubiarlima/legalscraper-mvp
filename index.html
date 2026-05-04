@@ -434,9 +434,32 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .confirm-actions{display:flex;gap:10px;justify-content:center}
 
 /* PROSPECÇÃO */
+.prosp-quick-filters{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.prosp-quick-label{font-size:11px;color:var(--text-muted);font-weight:600}
+.prosp-quick-btn{padding:6px 12px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;font-family:inherit;color:var(--grafite)}
+.prosp-quick-btn:hover{border-color:var(--azul-petroleo);color:var(--azul-petroleo);background:var(--info-bg)}
 .prosp-filters{display:flex;flex-direction:column;gap:16px}
 .prosp-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
 .prosp-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border-light)}
+.prosp-summary{margin-bottom:20px}
+.prosp-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.prosp-summary-card{background:#fff;border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,0.04);border:1px solid var(--border-light)}
+.prosp-summary-card.accent{background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%);border-color:var(--success)}
+.prosp-summary-icon{font-size:24px}
+.prosp-summary-value{font-size:20px;font-weight:700;color:var(--grafite)}
+.prosp-summary-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;margin-top:2px}
+.prosp-ranking{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border-light)}
+.prosp-ranking-title{font-size:12px;font-weight:700;color:var(--grafite);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.prosp-ranking-list{display:flex;flex-direction:column;gap:8px}
+.prosp-ranking-item{display:flex;align-items:center;gap:10px;font-size:12px}
+.prosp-ranking-pos{width:20px;height:20px;background:var(--azul-petroleo);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.prosp-ranking-pos.gold{background:#f59e0b}
+.prosp-ranking-pos.silver{background:#94a3b8}
+.prosp-ranking-pos.bronze{background:#d97706}
+.prosp-ranking-name{flex:1;color:var(--grafite);font-weight:500}
+.prosp-ranking-stats{display:flex;gap:12px;font-size:11px;color:var(--text-muted)}
+.prosp-ranking-bar{height:6px;background:var(--off-white);border-radius:3px;flex:1;overflow:hidden}
+.prosp-ranking-fill{height:100%;background:linear-gradient(90deg,var(--azul-petroleo),var(--success));border-radius:3px}
 .prosp-card{background:#fff;border:1.5px solid var(--border-light);border-radius:10px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:all .12s}
 .prosp-card:hover{border-color:var(--azul-petroleo);box-shadow:0 4px 16px rgba(0,96,100,0.1)}
 .prosp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
@@ -450,8 +473,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 .prosp-medium{background:#fff8e1;color:#f57c00}
 
 /* RESPONSIVE */
-@media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.modal-grid,.modal-enrich-grid{grid-template-columns:1fr}.main{padding:18px 20px;margin-left:190px}.sidebar{width:190px;min-width:190px}.processo-body{grid-template-columns:1fr}.enrich-grid{grid-template-columns:1fr}.home-grid{grid-template-columns:1fr}.prosp-filter-row{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr}.filters-row{flex-direction:column;align-items:stretch}.filter-group select,.filter-group input{width:100%}.watch-partes{flex-direction:column;gap:8px}.watch-body{grid-template-columns:1fr}.prosp-partes{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.modal-grid,.modal-enrich-grid{grid-template-columns:1fr}.main{padding:18px 20px;margin-left:190px}.sidebar{width:190px;min-width:190px}.processo-body{grid-template-columns:1fr}.enrich-grid{grid-template-columns:1fr}.home-grid{grid-template-columns:1fr}.prosp-filter-row{grid-template-columns:1fr}.prosp-summary-grid{grid-template-columns:repeat(2,1fr)}.prosp-quick-filters{justify-content:flex-start}}
+@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr}.filters-row{flex-direction:column;align-items:stretch}.filter-group select,.filter-group input{width:100%}.watch-partes{flex-direction:column;gap:8px}.watch-body{grid-template-columns:1fr}.prosp-partes{grid-template-columns:1fr}.prosp-summary-grid{grid-template-columns:1fr 1fr}.prosp-quick-btn{padding:5px 10px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -473,7 +496,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="captchaBox" class="captcha-box" onclick="toggleCaptcha()"><div class="captcha-checkbox"><svg class="captcha-check" style="display:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="captcha-label">Não sou um robô</span><span class="captcha-brand">hCaptcha</span></div>
 <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
 </div>
-<div class="login-footer">v2.5.5</div>
+<div class="login-footer">v2.6.3</div>
 </div>
 <div class="watermark">© 2026 Opportium</div>
 </div>
@@ -506,7 +529,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="user-menu-header"><strong id="menuUserName">Usuário</strong><span id="menuUserRole">Operador</span></div>
 <div class="user-menu-divider"></div>
 <button class="user-menu-item" onclick="openUserSettings()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Configurações</button>
-<button class="user-menu-item" onclick="window.open('https://opportium.com.br','_blank')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Ajuda</button>
+<button class="user-menu-item" onclick="window.open('https://www.opportium.com.br','_blank')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Ajuda</button>
 <div class="user-menu-divider"></div>
 <button class="user-menu-item danger" onclick="handleLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sair</button>
 </div>
@@ -527,7 +550,7 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="stat-card accent-orange"><div class="stat-label">Maior Valor em Causa</div><div class="stat-value" id="statMaiorValor">-</div><div class="stat-meta">Na base de dados</div></div>
 <div class="stat-card accent-dark"><div class="stat-label">Total na Base</div><div class="stat-value" id="statTotal">-</div><div class="stat-meta">Processos disponíveis</div></div>
 </div>
-<div class="stats-grid stats-grid-tribunais">
+<div class="stats-grid stats-grid-tribunais" id="statsTribunais">
 <div class="stat-card stat-card-tribunal tjsp"><div class="stat-tribunal-badge">TJSP</div><div class="stat-value" id="statTJSP">-</div><div class="stat-meta">Processos no tribunal</div></div>
 <div class="stat-card stat-card-tribunal tjgo"><div class="stat-tribunal-badge tjgo">TJGO</div><div class="stat-value" id="statTJGO">-</div><div class="stat-meta">Processos no tribunal</div></div>
 </div>
@@ -602,8 +625,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div class="card-title">ℹ️ Sobre</div>
 <div class="about-info">
 <p><strong>LegalScraper</strong> é uma plataforma de monitoramento e pesquisa de processos judiciais envolvendo instituições financeiras. Desenvolvido para <strong>Helgo</strong> pela <strong>Opportium</strong>.</p>
-<div class="about-version"><span>Versão 2.5.5</span><span>•</span><span>Atualizado em Mai/2026</span></div>
-<a href="https://opportium.com.br" target="_blank" class="about-link">opportium.com.br ↗</a>
+<div class="about-version"><span>Versão 2.6.3</span><span>•</span><span>Atualizado em Mai/2026</span></div>
+<a href="https://www.opportium.com.br" target="_blank" class="about-link">www.opportium.com.br ↗</a>
 </div>
 </div>
 </div>
@@ -675,18 +698,41 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 
 <!-- PROSPECÇÃO -->
 <div id="page-prospeccao" class="page">
-<div class="page-header"><div class="page-title">Prospecção</div><div class="page-subtitle">Encontre oportunidades com filtros avançados</div></div>
+<div class="page-header"><div class="page-title">Prospecção</div><div class="page-subtitle">Encontre oportunidades de alto valor contra instituições financeiras</div></div>
+
+<!-- Filtros Rápidos -->
+<div class="prosp-quick-filters">
+<span class="prosp-quick-label">Filtros rápidos:</span>
+<button class="prosp-quick-btn" onclick="quickProspFilter(100000,null)">≥ R$ 100k</button>
+<button class="prosp-quick-btn" onclick="quickProspFilter(500000,null)">≥ R$ 500k</button>
+<button class="prosp-quick-btn" onclick="quickProspFilter(1000000,null)">≥ R$ 1M</button>
+<button class="prosp-quick-btn" onclick="quickProspFilter(null,null,'TJSP')">TJSP</button>
+<button class="prosp-quick-btn" onclick="quickProspFilter(null,null,'TJGO')">TJGO</button>
+</div>
+
+<!-- Painel de Resumo -->
+<div class="prosp-summary" id="prospSummary" style="display:none">
+<div class="prosp-summary-grid">
+<div class="prosp-summary-card"><div class="prosp-summary-icon">🎯</div><div class="prosp-summary-data"><div class="prosp-summary-value" id="prospSumTotal">0</div><div class="prosp-summary-label">Oportunidades</div></div></div>
+<div class="prosp-summary-card accent"><div class="prosp-summary-icon">💰</div><div class="prosp-summary-data"><div class="prosp-summary-value" id="prospSumValor">R$ 0</div><div class="prosp-summary-label">Valor Total</div></div></div>
+<div class="prosp-summary-card"><div class="prosp-summary-icon">📈</div><div class="prosp-summary-data"><div class="prosp-summary-value" id="prospSumMedia">R$ 0</div><div class="prosp-summary-label">Valor Médio</div></div></div>
+<div class="prosp-summary-card"><div class="prosp-summary-icon">⭐</div><div class="prosp-summary-data"><div class="prosp-summary-value" id="prospSumAlto">0</div><div class="prosp-summary-label">Alto Valor (≥100k)</div></div></div>
+</div>
+<!-- Ranking de Bancos -->
+<div class="prosp-ranking" id="prospRanking"></div>
+</div>
+
 <div class="card">
 <div class="card-title">🎯 Filtros de Prospecção</div>
 <div class="prosp-filters">
 <div class="prosp-filter-row">
-<div class="filter-group"><label>Valor mínimo (R$)</label><input type="number" id="prospValorMin" placeholder="10.000" min="0"></div>
-<div class="filter-group"><label>Valor máximo (R$)</label><input type="number" id="prospValorMax" placeholder="500.000" min="0"></div>
-<div class="filter-group"><label>Tribunal</label><select id="prospTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option><option value="TJMG">TJMG</option><option value="TJRJ">TJRJ</option><option value="TJPR">TJPR</option></select></div>
+<div class="filter-group"><label>Valor mínimo (R$)</label><input type="number" id="prospValorMin" placeholder="10.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
+<div class="filter-group"><label>Valor máximo (R$)</label><input type="number" id="prospValorMax" placeholder="500.000" min="0" onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
+<div class="filter-group"><label>Tribunal</label><select id="prospTribunal"><option value="">Todos</option><option value="TJSP">TJSP</option><option value="TJGO">TJGO</option></select></div>
 </div>
 <div class="prosp-filter-row">
-<div class="filter-group"><label>Nome da parte (autor)</label><input type="text" id="prospAutor" placeholder="Nome do autor..."></div>
-<div class="filter-group"><label>Réu contém</label><input type="text" id="prospReu" placeholder="Banco, financeira..."></div>
+<div class="filter-group"><label>Nome da Parte (Autor)</label><input type="text" id="prospAutor" placeholder="Ex: João Silva, Maria..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
+<div class="filter-group"><label>Réu / Outro contém</label><input type="text" id="prospReu" placeholder="Banco, financeira..." onkeypress="if(event.key==='Enter'){event.preventDefault();doProspSearch()}"></div>
 </div>
 <div class="prosp-actions">
 <button class="btn btn-ghost" onclick="clearProspFilters()"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Limpar</button>
@@ -695,8 +741,8 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 </div>
 </div>
 <div id="prospLoading" class="loading-container" style="display:none"><div class="loading-spinner"></div><div class="loading-text">Buscando oportunidades...</div></div>
-<div id="prospEmpty" class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Configure os filtros</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Use valor mínimo/máximo e tribunal para encontrar oportunidades</div></div>
-<div id="prospResultsHeader" class="results-header" style="display:none"><div class="results-count" id="prospResultsCount"></div></div>
+<div id="prospEmpty" class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Configure os filtros</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Use valor mínimo/máximo, tribunal ou nome das partes para encontrar oportunidades</div></div>
+<div id="prospResultsHeader" class="results-header" style="display:none"><div class="results-count" id="prospResultsCount"></div><button class="btn btn-secondary btn-sm" onclick="exportProspResults()" style="padding:6px 12px;font-size:11px"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Exportar</button></div>
 <div id="prospResults"></div>
 </div>
 </main>
@@ -810,9 +856,10 @@ let token=null,currentUser=null,currentProcesso=null,watchlistCache=[],lastSearc
 let currentPage=1,totalPages=1,currentLimit=20,pendingRemoveId=null,pendingRemoveCnj=null;
 
 // PERMISSIONS
-const PERMISSIONS={'frontend_ops':{watchlist:true},'admin':{watchlist:true},'operator':{watchlist:true},'demo_user':{watchlist:false},'demo':{watchlist:false},'default':{watchlist:true}};
+const PERMISSIONS={'frontend_ops':{watchlist:true,tribunais:true},'admin':{watchlist:true,tribunais:true},'operator':{watchlist:true,tribunais:false},'demo_user':{watchlist:false,tribunais:false},'demo':{watchlist:false,tribunais:false},'default':{watchlist:true,tribunais:false}};
 const getUserPermissions=()=>{if(!currentUser||!currentUser.role)return PERMISSIONS.default;const r=currentUser.role.toLowerCase();return PERMISSIONS[r]||PERMISSIONS.default};
 const canUseWatchlist=()=>getUserPermissions().watchlist;
+const canSeeTribunais=()=>getUserPermissions().tribunais;
 const isDemoUser=()=>currentUser&&currentUser.role&&currentUser.role.toLowerCase().includes('demo');
 
 const applyPermissions=()=>{
@@ -828,6 +875,8 @@ const applyPermissions=()=>{
   ew.classList.toggle('disabled',!p.watchlist);
   if(!p.watchlist){ew.classList.remove('selected');document.querySelector('.export-option').classList.add('selected');exportType='busca'}
   document.getElementById('demoBanner').classList.toggle('active',isDemo);
+  // Cards de tribunais - apenas admin e frontend_ops
+  document.getElementById('statsTribunais').style.display=p.tribunais?'grid':'none';
 };
 
 // UTILS
@@ -928,10 +977,11 @@ const initApp=async()=>{
       const valores=lista.map(p=>p.valor_causa||0).filter(v=>v>0);
       if(valores.length>0){maiorValor=Math.max(...valores);document.getElementById('statMaiorValor').textContent=formatCurrencyShort(maiorValor)}
     }
-    // TJSP
-    try{const t=await apiCall('/processos?limit=1&tribunal=TJSP');if(t.total_count)document.getElementById('statTJSP').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
-    // TJGO
-    try{const t=await apiCall('/processos?limit=1&tribunal=TJGO');if(t.total_count)document.getElementById('statTJGO').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
+    // Tribunais - apenas se tiver permissão
+    if(canSeeTribunais()){
+      try{const t=await apiCall('/processos?limit=1&tribunal=TJSP');if(t.total_count)document.getElementById('statTJSP').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
+      try{const t=await apiCall('/processos?limit=1&tribunal=TJGO');if(t.total_count)document.getElementById('statTJGO').textContent=t.total_count.toLocaleString('pt-BR')}catch(e){}
+    }
   }catch(e){}
 };
 
@@ -1024,7 +1074,12 @@ const doSearch=async(page=1)=>{
 
 const renderProcessoCard=p=>{
   const num=p.processo_numero||'',cnj=formatCNJ(num),trib=p.tribunal||'-',valor=p.valor_causa,status=p.status_processamento||'';
-  const classe=p.classe||'',autor=p.autor||'',reu=p.reu||'',foro=p.foro||'',vara=p.vara||'';
+  const classe=p.classe||'',autor=p.autor||'',foro=p.foro||'',vara=p.vara||'';
+  // Se réu vazio, usa campo "outro" se existir
+  let reu=p.reu||'';
+  let reuLabel='Réu';
+  if(!reu&&p.outro){reu=p.outro;reuLabel='Réu / Outro'}
+  else if(!reu){reuLabel='Réu / Outro';reu='-'}
   const tc=getTribunalClass(trib),sc=getStatusClass(status),sl=getStatusLabel(status),vs=formatCurrency(valor);
   const inWatch=isInWatchlist(num);
   let loc='-';if(foro&&vara)loc=foro+' — '+vara;else if(foro)loc=foro;else if(vara)loc=vara;
@@ -1050,7 +1105,7 @@ const renderProcessoCard=p=>{
     +'<span class="processo-status '+sc+'">'+sl+'</span></div></div>'
     +'<div class="processo-body">'
     +'<div class="processo-field"><div class="processo-label">Autor</div><div class="processo-value" title="'+autor+'">'+truncate(autor)+'</div></div>'
-    +'<div class="processo-field"><div class="processo-label">Réu</div><div class="processo-value" title="'+reu+'">'+truncate(reu)+'</div></div>'
+    +'<div class="processo-field"><div class="processo-label">'+reuLabel+'</div><div class="processo-value" title="'+reu+'">'+truncate(reu)+'</div></div>'
     +'<div class="processo-field"><div class="processo-label">Foro / Vara</div><div class="processo-value" title="'+loc+'">'+truncate(loc)+'</div></div>'
     +'<div class="processo-field"><div class="processo-label">Assunto</div><div class="processo-value" title="'+(p.assunto||'')+'">'+truncate(p.assunto||'-')+'</div></div>'
     +'</div>'
@@ -1069,6 +1124,8 @@ const clearProspFilters=()=>{
   document.getElementById('prospReu').value='';
   document.getElementById('prospResults').innerHTML='';
   document.getElementById('prospResultsHeader').style.display='none';
+  document.getElementById('prospSummary').style.display='none';
+  document.getElementById('prospEmpty').innerHTML='<div class="empty-icon">🎯</div><div class="empty-title">Configure os filtros</div><div style="font-size:12px;margin-top:4px;color:var(--text-muted)">Use valor mínimo/máximo, tribunal ou nome das partes para encontrar oportunidades</div>';
   document.getElementById('prospEmpty').style.display='block';
   prospResults=[];
 };
@@ -1077,34 +1134,46 @@ const doProspSearch=async()=>{
   const valorMin=document.getElementById('prospValorMin').value;
   const valorMax=document.getElementById('prospValorMax').value;
   const tribunal=document.getElementById('prospTribunal').value;
-  const autor=document.getElementById('prospAutor').value.trim();
-  const reu=document.getElementById('prospReu').value.trim();
+  const autorFilter=document.getElementById('prospAutor').value.trim().toLowerCase();
+  const reuFilter=document.getElementById('prospReu').value.trim().toLowerCase();
   
   document.getElementById('prospLoading').style.display='flex';
   document.getElementById('prospEmpty').style.display='none';
   document.getElementById('prospResults').innerHTML='';
   document.getElementById('prospResultsHeader').style.display='none';
+  document.getElementById('prospSummary').style.display='none';
   
   try{
-    // Monta query com filtros avançados
-    let ep='/processos?limit=50';
+    // Monta query com filtros de valor e tribunal
+    let ep='/processos?limit=200';
     if(tribunal)ep+='&tribunal='+tribunal;
     if(valorMin)ep+='&valor_min='+valorMin;
     if(valorMax)ep+='&valor_max='+valorMax;
-    // nome_part busca em todas as partes
-    if(autor)ep+='&nome_part='+encodeURIComponent(autor);
     
     const res=await apiCall(ep);
     let lista=res.data||res.items||res.processos||(Array.isArray(res)?res:[]);
     
-    // Filtro adicional por réu no frontend (API pode não ter esse filtro)
-    if(reu){
-      const reuLower=reu.toLowerCase();
-      lista=lista.filter(p=>(p.reu||'').toLowerCase().includes(reuLower));
+    // Filtro local por AUTOR (campo autor especificamente)
+    if(autorFilter){
+      lista=lista.filter(p=>{
+        const autorNome=(p.autor||'').toLowerCase();
+        return autorNome.includes(autorFilter);
+      });
+    }
+    
+    // Filtro por RÉU/OUTRO especificamente
+    if(reuFilter){
+      lista=lista.filter(p=>{
+        const reuNome=(p.reu||p.outro||'').toLowerCase();
+        return reuNome.includes(reuFilter);
+      });
     }
     
     // Ordena por valor (maior primeiro)
     lista.sort((a,b)=>(b.valor_causa||0)-(a.valor_causa||0));
+    
+    // Limita a 50 resultados após filtros
+    lista=lista.slice(0,50);
     prospResults=lista;
     
     document.getElementById('prospLoading').style.display='none';
@@ -1114,6 +1183,21 @@ const doProspSearch=async()=>{
       document.getElementById('prospEmpty').style.display='block';
       return;
     }
+    
+    // Calcula estatísticas do painel
+    const valores=lista.map(p=>p.valor_causa||0);
+    const valorTotal=valores.reduce((a,b)=>a+b,0);
+    const valorMedia=valorTotal/lista.length;
+    const altoValor=lista.filter(p=>(p.valor_causa||0)>=100000).length;
+    
+    document.getElementById('prospSumTotal').textContent=lista.length;
+    document.getElementById('prospSumValor').textContent=formatCurrencyShort(valorTotal);
+    document.getElementById('prospSumMedia').textContent=formatCurrencyShort(valorMedia);
+    document.getElementById('prospSumAlto').textContent=altoValor;
+    document.getElementById('prospSummary').style.display='block';
+    
+    // Gera ranking de bancos/réus
+    renderProspRanking(lista);
     
     document.getElementById('prospResultsCount').textContent=lista.length+' oportunidade(s) encontrada(s)';
     document.getElementById('prospResultsHeader').style.display='flex';
@@ -1125,12 +1209,63 @@ const doProspSearch=async()=>{
   }
 };
 
+const quickProspFilter=(valorMin,valorMax,tribunal)=>{
+  document.getElementById('prospValorMin').value=valorMin||'';
+  document.getElementById('prospValorMax').value=valorMax||'';
+  document.getElementById('prospTribunal').value=tribunal||'';
+  document.getElementById('prospAutor').value='';
+  document.getElementById('prospReu').value='';
+  doProspSearch();
+};
+
+const renderProspRanking=(lista)=>{
+  // Agrupa por réu/outro e conta
+  const bancos={};
+  lista.forEach(p=>{
+    const nome=(p.reu||p.outro||'Não identificado').toUpperCase();
+    if(!bancos[nome])bancos[nome]={count:0,valor:0};
+    bancos[nome].count++;
+    bancos[nome].valor+=(p.valor_causa||0);
+  });
+  
+  // Ordena por valor total
+  const sorted=Object.entries(bancos).sort((a,b)=>b[1].valor-a[1].valor).slice(0,5);
+  if(sorted.length===0){document.getElementById('prospRanking').innerHTML='';return}
+  
+  const maxValor=sorted[0][1].valor;
+  const posClass=['gold','silver','bronze','',''];
+  
+  let html='<div class="prosp-ranking-title">🏦 Top Instituições por Valor</div><div class="prosp-ranking-list">';
+  sorted.forEach(([nome,data],i)=>{
+    const pct=maxValor>0?Math.round((data.valor/maxValor)*100):0;
+    html+='<div class="prosp-ranking-item">'
+      +'<span class="prosp-ranking-pos '+(posClass[i]||'')+'">'+(i+1)+'</span>'
+      +'<span class="prosp-ranking-name">'+truncate(nome,30)+'</span>'
+      +'<div class="prosp-ranking-bar"><div class="prosp-ranking-fill" style="width:'+pct+'%"></div></div>'
+      +'<span class="prosp-ranking-stats">'+data.count+' proc. • '+formatCurrencyShort(data.valor)+'</span>'
+      +'</div>';
+  });
+  html+='</div>';
+  document.getElementById('prospRanking').innerHTML=html;
+};
+
+const exportProspResults=()=>{
+  if(prospResults.length===0){showToast('Nenhum resultado para exportar',true);return}
+  exportType='prospeccao';
+  lastSearchResults=prospResults;
+  showPage('exportar',document.querySelector('[data-page=exportar]'));
+};
+
 const renderProspCard=p=>{
   const n=p.processo_numero||p.cnj||'';
   const trib=p.tribunal||'';
   const valor=p.valor_causa||0;
   const autor=p.autor||'-';
-  const reu=p.reu||'-';
+  // Se réu vazio, usa campo "outro"
+  let reu=p.reu||'';
+  let reuLabel='Réu';
+  if(!reu&&p.outro){reu=p.outro;reuLabel='Réu / Outro'}
+  else if(!reu){reuLabel='Réu / Outro';reu='-'}
   const tc=getTribunalClass(trib);
   const vs=formatCurrency(valor);
   
@@ -1146,7 +1281,7 @@ const renderProspCard=p=>{
     +'</div>'
     +'<div class="prosp-partes">'
     +'<div><div class="prosp-parte-label">Autor</div><div class="prosp-parte-value">'+truncate(autor,45)+'</div></div>'
-    +'<div><div class="prosp-parte-label">Réu</div><div class="prosp-parte-value">'+truncate(reu,45)+'</div></div>'
+    +'<div><div class="prosp-parte-label">'+reuLabel+'</div><div class="prosp-parte-value">'+truncate(reu,45)+'</div></div>'
     +'</div>'
     +'</div>';
 };
