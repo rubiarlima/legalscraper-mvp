@@ -1419,11 +1419,13 @@ const flattenToNested=(obj)=>{
 };
 
 const normalizeEnrichStatus=raw=>{
-  const s=(raw||'').toString().toLowerCase();
-  if(['available','success','done','completed','concluido','concluído'].includes(s))return'available';
-  if(['pending','processing','queued','running','processando','em_processamento'].includes(s))return'pending';
-  if(['unavailable','warning','not_found','sem_dados','empty'].includes(s))return'unavailable';
-  if(['error','erro','failed','failure'].includes(s))return'error';
+  const s=(raw||'').toString().toLowerCase().trim();
+  if(s==='available')return'available';
+  if(s==='processing')return'processing';
+  if(s==='warning')return'warning';
+  if(s==='error'||s==='erro'||s==='failed')return'error';
+  if(s==='not_requested'||s==='')return'not_requested';
+  if(s==='reused')return'reused';
   return s;
 };
 
@@ -1523,157 +1525,198 @@ const renderModalEnrich=p=>{
   const dataEl=document.getElementById('modalEnrichData');
   section.style.display='block';
 
-  // Reset sempre — dados só aparecem após ação explícita do usuário
+  // Reset
   prompt.style.display='none';
   loading.style.display='none';
   dataEl.style.display='none';
   badge.className='enrich-status';
   badge.textContent='';
 
-  // Se já enriquecido nesta sessão (após o usuário clicar), manter exibição
-  if(p.__enriched_from_api&&p.enrichment_data&&hasEnrichmentContent(p.enrichment_data)){
-    badge.className='enrich-status available';
-    badge.textContent='✓ Enriquecido';
-    showEnrichData(p);
-    return;
-  }
+  // Lê o status diretamente do enrichment_data retornado pelo backend
+  const ed=p.enrichment_data||{};
+  const status=normalizeEnrichStatus(ed.status||'not_requested');
 
-  // Indicar visualmente se há dados disponíveis mas não exibidos
-  const summaryStatus=normalizeEnrichStatus(p.enrichment_summary?.status||'');
-  if(summaryStatus==='available'){
-    badge.className='enrich-status available';
-    badge.textContent='Dados disponíveis';
-    document.getElementById('btnEnrichLabel').textContent='Ver Dados Enriquecidos';
-    document.getElementById('enrichPromptNote').textContent='Sem custo adicional — dados já disponíveis';
-  }else if(summaryStatus==='unavailable'){
+  if(status==='available'){
+    // Dados prontos — mostrar botão, usuário decide quando ver
+    if(p.__shown_this_session){
+      // Já clicou nesta sessão — manter exibição
+      badge.className='enrich-status available';
+      badge.textContent='✓ Enriquecido';
+      showEnrichData(p.enrichment_data||{});
+    }else{
+      badge.className='enrich-status available';
+      badge.textContent='Dados disponíveis';
+      document.getElementById('btnEnrichLabel').textContent='Ver Dados Enriquecidos';
+      document.getElementById('enrichPromptNote').textContent='Sem custo adicional — já processado';
+      prompt.style.display='block';
+    }
+  }else if(status==='processing'){
+    // Em processamento — mostrar loading e iniciar polling
+    badge.className='enrich-status pending';
+    badge.textContent='⏳ Processando';
+    loading.style.display='flex';
+    const cnjRaw=String(p.processo_numero||'').replace(/\D/g,'');
+    if(cnjRaw)pollEnrichStatus(cnjRaw);
+  }else if(status==='warning'){
+    // Concluído sem dados úteis
     badge.className='enrich-status unavailable';
     badge.textContent='Sem dados';
+    dataEl.innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span>'
+      +'<span class="enrich-unavailable-text">'+(ed.mensagem_status||'Nenhum dado encontrado para esta parte na base DATE Solutions.')+'</span></div>';
+    dataEl.style.display='block';
     document.getElementById('btnEnrichLabel').textContent='Tentar novamente';
     document.getElementById('enrichPromptNote').textContent='Consome 1 crédito';
+    prompt.style.display='block';
+  }else if(status==='error'){
+    badge.className='enrich-status unavailable';
+    badge.textContent='Erro';
+    document.getElementById('btnEnrichLabel').textContent='Tentar novamente';
+    document.getElementById('enrichPromptNote').textContent='Consome 1 crédito';
+    prompt.style.display='block';
   }else{
+    // not_requested — nunca foi enriquecido
     document.getElementById('btnEnrichLabel').textContent='Enriquecer Dados';
     document.getElementById('enrichPromptNote').textContent='Consome 1 crédito';
+    prompt.style.display='block';
   }
-
-  // Sempre mostrar o botão — usuário decide quando enriquecer/ver
-  prompt.style.display='block';
 };
 
-const showEnrichData=p=>{
-  const ed=getEnrichmentData(p);
-  if(!ed)return;
-  
-  const data=document.getElementById('modalEnrichData');
-  const role=(ed.__party_role||'').toString().toUpperCase();
-  const title=role.includes('RÉU')||role.includes('REU')?'Dados do Réu':(role.includes('AUTOR')?'Dados do Autor':'Dados da Parte');
-  let html='<div class="modal-enrich"><div class="modal-enrich-header"><span class="modal-enrich-title">'+title+(ed.__party_name?' - '+ed.__party_name:'')+'</span>'
-    +(p.enrichment_summary?.updated_at?'<span class="modal-enrich-updated">Atualizado: '+formatDate(p.enrichment_summary.updated_at)+'</span>':'')
-    +'</div><div class="modal-enrich-grid">';
-  
+const showEnrichData=ed=>{
+  if(!ed||ed.status==='not_requested')return;
+  const dataEl=document.getElementById('modalEnrichData');
+  let html='<div class="modal-enrich"><div class="modal-enrich-grid">';
+
   // Dados pessoais
   const dp=ed.dados_pessoais||{};
-  const dpNome=pickFirst(dp,['nome','nomeRazao','razao_social','nome_completo'])||ed.__party_name;
-  const dpDoc=pickFirst(dp,['documento','cpf','cnpj','cpf_mascarado','cpf_parcial']);
-  const dpNasc=pickFirst(dp,['data_nascimento','nascimento','dt_nascimento']);
-  const dpMae=pickFirst(dp,['nome_mae','mae','nome_da_mae']);
+  const dpNome=pickFirst(dp,['nome','nomeRazao','razao_social','nome_completo']);
+  const dpDoc=pickFirst(dp,['cpf','cnpj','documento','cpf_mascarado','cpf_parcial']);
+  const dpNasc=pickFirst(dp,['data_nascimento','nascimento']);
+  const dpMae=pickFirst(dp,['nome_mae','mae']);
   if(dpNome||dpDoc||dpNasc||dpMae){
-    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>👤</span> Dados pessoais</div>'
+    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>👤</span> Dados Pessoais</div>'
       +(dpNome?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nome:</span><span class="modal-enrich-row-value">'+dpNome+'</span></div>':'')
       +(dpDoc?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Doc.:</span><span class="modal-enrich-row-value">'+dpDoc+'</span></div>':'')
       +(dpNasc?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Nascimento:</span><span class="modal-enrich-row-value">'+formatDate(dpNasc)+(dp.idade?' ('+dp.idade+' anos)':'')+'</span></div>':'')
       +(dpMae?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Mãe:</span><span class="modal-enrich-row-value">'+dpMae+'</span></div>':'')
       +'</div>';
   }
-  
+
   // Contatos
-  const telefones=asArray(ed.telefones||ed.fones||ed.phones);
-  const emails=asArray(ed.emails||ed.email);
-  if(telefones.length>0||emails.length>0){
+  const telefones=asArray(ed.telefones).slice(0,3);
+  const emails=asArray(ed.emails).slice(0,3);
+  if(telefones.length||emails.length){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📱</span> Contatos</div>';
-    if(telefones.length>0){
+    if(telefones.length){
       html+='<ul class="modal-enrich-list">';
-      telefones.slice(0,3).forEach(t=>{
-        const numero=typeof t==='string'?t:pickFirst(t,['numero','telefone','phone','valor','fone']);
-        const tipo=typeof t==='string'?'':pickFirst(t,['tipo','type','classificacao','categoria']);
-        const whatsapp=typeof t==='object'&&(t.whatsapp||t.is_whatsapp||t.tem_whatsapp);
-        if(numero)html+='<li>'+formatPhone(numero)+(tipo?' <span style="font-size:10px;color:var(--text-muted)">'+tipo+'</span>':'')+(whatsapp?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
+      telefones.forEach(t=>{
+        const num=typeof t==='string'?t:pickFirst(t,['numero','telefone','phone','fone']);
+        const tipo=typeof t==='string'?'':pickFirst(t,['tipo','type','classificacao']);
+        const wa=typeof t==='object'&&(t.whatsapp||t.is_whatsapp||t.tem_whatsapp);
+        if(num)html+='<li>'+formatPhone(num)+(tipo?' <span style="font-size:10px;color:var(--text-muted)">'+tipo+'</span>':'')+(wa?' <span class="whatsapp-badge">WhatsApp</span>':'')+'</li>';
       });
       html+='</ul>';
     }
-    if(emails.length>0){
+    if(emails.length){
       html+='<div style="margin-top:8px">';
-      emails.slice(0,3).forEach(e=>{
-        const addr=typeof e==='string'?e:pickFirst(e,['endereco','email','valor','address']);
+      emails.forEach(e=>{
+        const addr=typeof e==='string'?e:pickFirst(e,['endereco','email','address']);
         if(addr)html+='<div class="modal-enrich-row">✉️ '+addr+'</div>';
       });
       html+='</div>';
     }
     html+='</div>';
   }
-  
-  // Endereço
-  if(asArray(ed.enderecos).length>0){
-    asArray(ed.enderecos).slice(0,2).forEach(e=>{
-      // Suporta cidade_uf flat ("PIRACANJUBA/GO") ou campos separados
-      let cidade=pickFirst(e,['cidade','municipio','city']);
-      let uf=pickFirst(e,['uf','estado','state']);
-      if(!cidade&&e.cidade_uf){const p=(e.cidade_uf||'').split('/');cidade=p[0];uf=p[1];}
-      const cep=pickFirst(e,['cep','zipcode','codigo_postal']);
-      const logradouro=pickFirst(e,['logradouro','rua','endereco','street']);
-      const numero=pickFirst(e,['numero','num','number']);
-      const bairro=pickFirst(e,['bairro','distrito','neighborhood']);
-      const linhaRua=[logradouro,numero].filter(v=>v&&v!=='-'&&v!=='0').join(', ')+(bairro?' - '+bairro:'');
-      const linhaCidade=[cidade,uf].filter(Boolean).join('/')+(cep?' - CEP '+cep:'');
+
+  // Endereços (até 2)
+  asArray(ed.enderecos).slice(0,2).forEach(e=>{
+    let cidade=pickFirst(e,['cidade','municipio']);
+    let uf=pickFirst(e,['uf','estado']);
+    if(!cidade&&e.cidade_uf){const p=(e.cidade_uf||'').split('/');cidade=p[0];uf=p[1];}
+    const logradouro=pickFirst(e,['logradouro','rua','endereco']);
+    const numero=pickFirst(e,['numero','num']);
+    const bairro=e.bairro;
+    const cep=e.cep;
+    const linhaRua=[logradouro,numero].filter(v=>v&&v!=='-').join(', ')+(bairro?' - '+bairro:'');
+    const linhaCidade=[cidade,uf].filter(Boolean).join('/')+(cep?' - CEP '+cep:'');
+    if(linhaRua||linhaCidade){
       html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>📍</span> Endereço</div>'
         +(linhaRua?'<div class="modal-enrich-row">'+linhaRua+'</div>':'')
         +(linhaCidade?'<div class="modal-enrich-row">'+linhaCidade+'</div>':'')
         +'</div>';
-    });
-  }
-  
+    }
+  });
+
   // Perfil sociodemográfico
-  if(ed.perfil_sociodemografico){
-    const ps=ed.perfil_sociodemografico;
-    const classe=pickFirst(ps,['classe_social','perfil_classe','classe']);
-    const renda=pickFirst(ps,['estimativa_renda','renda_presumida','renda']);
+  const ps=ed.perfil_sociodemografico||{};
+  const classe=pickFirst(ps,['classe_social','perfil_classe','classe']);
+  const renda=pickFirst(ps,['estimativa_renda','renda_presumida','renda']);
+  if(classe||renda||ps.escolaridade||ps.segmento){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>💼</span> Perfil</div>'
       +(classe?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Classe:</span><span class="modal-enrich-row-value">'+classe+'</span></div>':'')
-      +(renda?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Renda:</span><span class="modal-enrich-row-value">'+formatMaybeCurrency(renda)+'</span></div>':'')
+      +(renda?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Renda est.:</span><span class="modal-enrich-row-value">'+formatMaybeCurrency(renda)+'</span></div>':'')
       +(ps.escolaridade?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Escolaridade:</span><span class="modal-enrich-row-value">'+ps.escolaridade+'</span></div>':'')
       +(ps.segmento?'<div class="modal-enrich-row"><span class="modal-enrich-row-label">Segmento:</span><span class="modal-enrich-row-value">'+ps.segmento+'</span></div>':'')
       +'</div>';
   }
-  
-  // Empresas
-  if(asArray(ed.participacoes_societarias).length>0){
-    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>🏢</span> Empresas</div><ul class="modal-enrich-list">';
-    asArray(ed.participacoes_societarias).forEach(e=>{
+
+  // Histórico profissional
+  const hist=asArray(ed.historico_profissional).slice(0,3);
+  if(hist.length){
+    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>💼</span> Histórico Profissional</div><ul class="modal-enrich-list">';
+    hist.forEach(h=>{
+      const emp=pickFirst(h,['empresa','empregador','razao_social','nome']);
+      const cargo=pickFirst(h,['cargo','funcao','ocupacao']);
+      const periodo=pickFirst(h,['periodo','data_inicio','admissao']);
+      if(emp||cargo)html+='<li><div>'+(emp?'<div style="font-weight:500">'+emp+'</div>':'')
+        +((cargo||periodo)?'<div style="font-size:10px;color:var(--text-muted)">'+(cargo||'')+(cargo&&periodo?' • ':'')+( periodo||'')+'</div>':'')
+        +'</div></li>';
+    });
+    html+='</ul></div>';
+  }
+
+  // Participações societárias
+  const soc=asArray(ed.participacoes_societarias).slice(0,3);
+  if(soc.length){
+    html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>🏛️</span> Empresas</div><ul class="modal-enrich-list">';
+    soc.forEach(e=>{
       const nome=pickFirst(e,['razao_social','nome','empresa','nome_fantasia']);
       const cnpj=pickFirst(e,['cnpj','documento']);
       const pct=pickFirst(e,['percentual','participacao']);
-      html+='<li><div><div style="font-weight:500">'+nome+'</div><div style="font-size:10px;color:var(--text-muted)">'+(cnpj?'CNPJ: '+cnpj:'')+(pct?' • '+pct+'%':'')+'</div></div></li>';
+      if(nome)html+='<li><div><div style="font-weight:500">'+nome+'</div>'
+        +'<div style="font-size:10px;color:var(--text-muted)">'+(cnpj?'CNPJ: '+cnpj:'')+(cnpj&&pct?' • ':'')+( pct?pct+'%':'')+'</div></div></li>';
     });
     html+='</ul></div>';
   }
-  
+
   // Veículos
-  if(asArray(ed.veiculos).length>0){
+  const veic=asArray(ed.veiculos).slice(0,3);
+  if(veic.length){
     html+='<div class="modal-enrich-card"><div class="modal-enrich-card-title"><span>🚗</span> Veículos</div><ul class="modal-enrich-list">';
-    asArray(ed.veiculos).forEach(v=>{
+    veic.forEach(v=>{
       const desc=pickFirst(v,['descricao','veiculo'])||[v.marca,v.modelo].filter(Boolean).join(' ');
-      html+='<li>'+desc+(v.ano?' ('+v.ano+')':'')+(v.placa?' <span style="font-size:10px;color:var(--text-muted)">Placa: '+v.placa+'</span>':'')+'</li>';
+      if(desc)html+='<li>'+desc+(v.ano?' ('+v.ano+')':'')+(v.placa?' <span style="font-size:10px;color:var(--text-muted)">'+v.placa+'</span>':'')+'</li>';
     });
     html+='</ul></div>';
   }
-  
+
   html+='</div></div>';
-  data.innerHTML=html;
-  data.style.display='block';
+  dataEl.innerHTML=html;
+  dataEl.style.display='block';
 };
 
 // ENRIQUECIMENTO
 const askEnrich=()=>{
   if(!currentProcesso)return;
+  // Se dados já disponíveis — mostrar direto sem consumir crédito
+  const status=normalizeEnrichStatus(currentProcesso.enrichment_data?.status||'not_requested');
+  if(status==='available'){
+    currentProcesso.__shown_this_session=true;
+    document.getElementById('modalEnrichPrompt').style.display='none';
+    document.getElementById('modalEnrichBadge').className='enrich-status available';
+    document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
+    showEnrichData(currentProcesso.enrichment_data||{});
+    return;
+  }
   document.getElementById('enrichConfirmOverlay').classList.add('active');
 };
 
@@ -1682,33 +1725,24 @@ const closeEnrichConfirm=()=>{
 };
 
 const finishEnrichSuccess=()=>{
-  currentProcesso.__enriched_from_api=true;
+  currentProcesso.__shown_this_session=true;
   document.getElementById('modalEnrichLoading').style.display='none';
   document.getElementById('modalEnrichBadge').className='enrich-status available';
   document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
-  showEnrichData(currentProcesso);
+  showEnrichData(currentProcesso.enrichment_data||{});
   showToast('Dados enriquecidos com sucesso!');
 };
 
 const fetchEnrichedProcessDetail=async(cnj)=>{
   const cnjRaw=String(cnj||'').replace(/\D/g,'');
-  const keys=[cnjRaw,cnj].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  for(const key of keys){
-    try{
-      const detail=await apiCall('/processos/'+encodeURIComponent(key));
-      // DEBUG — remover após mapear campos da DATE Solutions
-      if(detail?.enrichment_data){
-        console.log('[ENRICH DEBUG] enrichment_data recebido:',JSON.stringify(detail.enrichment_data,null,2));
-        console.log('[ENRICH DEBUG] enrichment_summary:',JSON.stringify(detail.enrichment_summary,null,2));
-      }
-      const data=applyEnrichmentPayload(currentProcesso,detail);
-      if(data){
-        currentProcesso.__enriched_from_api=true;
-        currentProcesso={...currentProcesso,...detail,enrichment_data:currentProcesso.enrichment_data,enrichment_summary:currentProcesso.enrichment_summary,__enriched_from_api:true};
-        return data;
-      }
-    }catch(e){}
-  }
+  try{
+    const detail=await apiCall('/processos/'+encodeURIComponent(cnjRaw));
+    const ed=detail?.enrichment_data;
+    if(ed&&normalizeEnrichStatus(ed.status)==='available'){
+      currentProcesso.enrichment_data=ed;
+      return ed;
+    }
+  }catch(e){}
   return null;
 };
 
@@ -1860,25 +1894,23 @@ const confirmEnrich=async()=>{
     
     closeEnrichConfirm();
     
-    // 4. Mostrar loading na seção
+    // 4. Verificar status retornado pelo POST
+    const detail=result.details?.[0]||{};
+    const postStatus=normalizeEnrichStatus(detail.status||'');
+
     document.getElementById('modalEnrichPrompt').style.display='none';
     document.getElementById('modalEnrichLoading').style.display='flex';
     document.getElementById('modalEnrichBadge').className='enrich-status pending';
     document.getElementById('modalEnrichBadge').textContent='⏳ Processando';
-    
-    // 5. Se o resultado já veio com dados, mostrar
-    const immediateData=applyEnrichmentPayload(currentProcesso,result);
-    if(immediateData){
-      finishEnrichSuccess();
+
+    if(postStatus==='reused'){
+      // Cache hit — dados já disponíveis, buscar detalhe imediatamente
+      const detailData=await fetchEnrichedProcessDetail(cnjRaw);
+      if(detailData)finishEnrichSuccess();
+      else pollEnrichStatus(cnjRaw);
     }else{
-      const resultStatus=normalizeEnrichStatus(result.status||result.estado||result.enrichment_summary?.status||result.summary?.status);
-      if(resultStatus==='available'){
-        const detailData=await fetchEnrichedProcessDetail(cnjRaw);
-        if(detailData)finishEnrichSuccess();
-        else pollEnrichStatus(cnjRaw);
-      }else{
-        pollEnrichStatus(cnjRaw);
-      }
+      // processing — iniciar polling
+      pollEnrichStatus(cnjRaw);
     }
   }catch(e){
     showToast('Erro: '+e.message,true);
@@ -1890,48 +1922,39 @@ const confirmEnrich=async()=>{
 };
 
 const pollEnrichStatus=async(cnj,attempts=0)=>{
-  if(attempts>=80){
+  if(attempts>=40){
     document.getElementById('modalEnrichLoading').style.display='none';
     document.getElementById('modalEnrichPrompt').style.display='block';
     document.getElementById('modalEnrichBadge').className='enrich-status';
     document.getElementById('modalEnrichBadge').textContent='';
-    showToast('A DATE ainda está processando. Você pode tentar abrir o processo novamente em alguns minutos.',true);
+    showToast('A DATE Solutions ainda está processando. Tente abrir o processo novamente em alguns minutos.',true);
     return;
   }
   try{
     const cnjRaw=String(cnj||'').replace(/\D/g,'');
-    const status=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
-    const enrichData=applyEnrichmentPayload(currentProcesso,status);
-    const statusStr=normalizeEnrichStatus(status.status||status.estado||currentProcesso.enrichment_summary?.status||(enrichData?'available':''));
-
-    if(statusStr==='available'){
-      // Sucesso com dados
-      if(enrichData){
-        finishEnrichSuccess();
-      }else{
-        const detailData=await fetchEnrichedProcessDetail(cnjRaw);
-        if(detailData)finishEnrichSuccess();
-        else setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
-      }
-    }else if(statusStr==='unavailable'){
-      // Finalizado mas sem dados encontrados para esta pessoa
+    const statusResp=await apiCall('/enrichment/'+encodeURIComponent(cnjRaw)+'/status');
+    const status=normalizeEnrichStatus(statusResp.status||'');
+    if(status==='available'){
+      const detailData=await fetchEnrichedProcessDetail(cnjRaw);
+      if(detailData)finishEnrichSuccess();
+      else setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),3000);
+    }else if(status==='warning'){
       document.getElementById('modalEnrichLoading').style.display='none';
-      document.getElementById('modalEnrichPrompt').style.display='none';
-      document.getElementById('modalEnrichData').innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span><span class="enrich-unavailable-text">Nenhum dado encontrado para esta parte na base da DATE Solutions.</span></div>';
-      document.getElementById('modalEnrichData').style.display='block';
       document.getElementById('modalEnrichBadge').className='enrich-status unavailable';
       document.getElementById('modalEnrichBadge').textContent='Sem dados';
-      showToast('Enriquecimento concluído: sem dados disponíveis para esta parte.',false);
-    }else if(statusStr==='error'||statusStr==='erro'||statusStr==='failed'){
+      document.getElementById('modalEnrichData').innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span>'
+        +'<span class="enrich-unavailable-text">'+(statusResp.mensagem_status||'Nenhum dado encontrado para esta parte.')+'</span></div>';
+      document.getElementById('modalEnrichData').style.display='block';
+    }else if(status==='error'){
       document.getElementById('modalEnrichLoading').style.display='none';
       document.getElementById('modalEnrichPrompt').style.display='block';
       document.getElementById('modalEnrichBadge').className='enrich-status';
       document.getElementById('modalEnrichBadge').textContent='';
-      showToast('Erro no enriquecimento: '+(status.message||status.mensagem||'Tente novamente'),true);
+      showToast('Erro no enriquecimento. Tente novamente.',true);
     }else{
-      const delay=3000;
-      const elapsed=(attempts+1)*3;
-      document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent='Consultando DATE Solutions... ('+elapsed+'s)';
+      const delay=attempts<10?3000:5000;
+      document.getElementById('modalEnrichLoading').querySelector('.loading-text').textContent=
+        'Consultando DATE Solutions... ('+Math.round((attempts+1)*3)+'s)';
       setTimeout(()=>pollEnrichStatus(cnjRaw,attempts+1),delay);
     }
   }catch(e){
