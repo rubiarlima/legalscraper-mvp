@@ -781,9 +781,9 @@ nav{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
 <div id="modalEnrichContent">
 <div id="modalEnrichPrompt" class="enrich-prompt">
 <div class="enrich-prompt-icon">🔍</div>
-<div class="enrich-prompt-text">Obtenha dados detalhados das partes: autor, réu, contatos, endereço, renda estimada, empresas e veículos.</div>
-<button class="btn btn-primary" id="btnEnrich" onclick="askEnrich()"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Enriquecer Dados</button>
-<div class="enrich-prompt-note">Consome 1 crédito</div>
+<div class="enrich-prompt-text" id="enrichPromptText">Obtenha dados detalhados das partes: autor, réu, contatos, endereço, renda estimada, empresas e veículos.</div>
+<button class="btn btn-primary" id="btnEnrich" onclick="askEnrich()"><svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> <span id="btnEnrichLabel">Enriquecer Dados</span></button>
+<div class="enrich-prompt-note" id="enrichPromptNote">Consome 1 crédito</div>
 </div>
 <div id="modalEnrichLoading" class="enrich-loading" style="display:none">
 <div class="loading-spinner"></div>
@@ -1523,34 +1523,40 @@ const renderModalEnrich=p=>{
   const dataEl=document.getElementById('modalEnrichData');
   section.style.display='block';
 
-  const enrichData=applyEnrichmentPayload(p,p);
-  const summary=p.enrichment_summary||null;
-  const statusStr=normalizeEnrichStatus(summary?.status||(enrichData?'available':''));
-
-  // Reset
+  // Reset sempre — dados só aparecem após ação explícita do usuário
   prompt.style.display='none';
   loading.style.display='none';
   dataEl.style.display='none';
   badge.className='enrich-status';
   badge.textContent='';
 
-  if(statusStr==='available'&&enrichData){
+  // Se já enriquecido nesta sessão (após o usuário clicar), manter exibição
+  if(p.__enriched_from_api&&p.enrichment_data&&hasEnrichmentContent(p.enrichment_data)){
     badge.className='enrich-status available';
     badge.textContent='✓ Enriquecido';
     showEnrichData(p);
-  }else if(statusStr==='unavailable'){
+    return;
+  }
+
+  // Indicar visualmente se há dados disponíveis mas não exibidos
+  const summaryStatus=normalizeEnrichStatus(p.enrichment_summary?.status||'');
+  if(summaryStatus==='available'){
+    badge.className='enrich-status available';
+    badge.textContent='Dados disponíveis';
+    document.getElementById('btnEnrichLabel').textContent='Ver Dados Enriquecidos';
+    document.getElementById('enrichPromptNote').textContent='Sem custo adicional — dados já disponíveis';
+  }else if(summaryStatus==='unavailable'){
     badge.className='enrich-status unavailable';
     badge.textContent='Sem dados';
-    dataEl.innerHTML='<div class="enrich-unavailable"><span class="enrich-unavailable-icon">🔍</span><span class="enrich-unavailable-text">Nenhum dado encontrado para esta parte na base da DATE Solutions.</span></div>';
-    dataEl.style.display='block';
-  }else if(statusStr==='pending'){
-    badge.className='enrich-status pending';
-    badge.textContent='⏳ Processando';
-    prompt.style.display='block';
+    document.getElementById('btnEnrichLabel').textContent='Tentar novamente';
+    document.getElementById('enrichPromptNote').textContent='Consome 1 crédito';
   }else{
-    // Sem dados ainda — mostrar botão
-    prompt.style.display='block';
+    document.getElementById('btnEnrichLabel').textContent='Enriquecer Dados';
+    document.getElementById('enrichPromptNote').textContent='Consome 1 crédito';
   }
+
+  // Sempre mostrar o botão — usuário decide quando enriquecer/ver
+  prompt.style.display='block';
 };
 
 const showEnrichData=p=>{
@@ -1676,6 +1682,7 @@ const closeEnrichConfirm=()=>{
 };
 
 const finishEnrichSuccess=()=>{
+  currentProcesso.__enriched_from_api=true;
   document.getElementById('modalEnrichLoading').style.display='none';
   document.getElementById('modalEnrichBadge').className='enrich-status available';
   document.getElementById('modalEnrichBadge').textContent='✓ Enriquecido';
@@ -1696,7 +1703,8 @@ const fetchEnrichedProcessDetail=async(cnj)=>{
       }
       const data=applyEnrichmentPayload(currentProcesso,detail);
       if(data){
-        currentProcesso={...currentProcesso,...detail,enrichment_data:currentProcesso.enrichment_data,enrichment_summary:currentProcesso.enrichment_summary};
+        currentProcesso.__enriched_from_api=true;
+        currentProcesso={...currentProcesso,...detail,enrichment_data:currentProcesso.enrichment_data,enrichment_summary:currentProcesso.enrichment_summary,__enriched_from_api:true};
         return data;
       }
     }catch(e){}
